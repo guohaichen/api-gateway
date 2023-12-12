@@ -1,0 +1,2 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.sealand.gateway.client.core.autoconfigure.ApiClientAutoConfiguration

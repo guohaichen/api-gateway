@@ -1,0 +1,20 @@
+# Intellij
+*.ipr
+*.iml
+*.iws
+.idea/
+
+# Maven
+target/
+
+# Log file
+*.log
+log/
+
+
+# Compiled class file
+*.class
+
+#test
+**/src/test/
+.gitattributes

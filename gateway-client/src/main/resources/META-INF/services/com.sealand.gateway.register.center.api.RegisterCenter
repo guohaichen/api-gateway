@@ -1,0 +1,2 @@
+com.sealand.gateway.register.center.nacos.NacosRegisterCenter
+# 配合ServiceLoader,将注册中心插件化
