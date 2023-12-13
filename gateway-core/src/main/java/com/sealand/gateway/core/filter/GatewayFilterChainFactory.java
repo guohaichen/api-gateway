@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @desc 过滤器链工厂类实现
  */
 @Slf4j
-public class GatewayFilterChainFactory implements FilterFactor {
+public class GatewayFilterChainFactory implements FilterFactory {
 
     /**
      * 过滤器map
@@ -25,7 +25,7 @@ public class GatewayFilterChainFactory implements FilterFactor {
         private static final GatewayFilterChainFactory INSTANCE = new GatewayFilterChainFactory();
     }
 
-    private static GatewayFilterChainFactory getInstance() {
+    public static GatewayFilterChainFactory getInstance() {
         return SingletonInstance.INSTANCE;
     }
 
@@ -59,6 +59,7 @@ public class GatewayFilterChainFactory implements FilterFactor {
      * @param ctx 网关上下文，包含请求，响应以及rule
      * @return
      * @throws Exception
+     * @desc 构建过滤器链
      */
     @Override
     public GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception {

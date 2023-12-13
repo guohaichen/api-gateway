@@ -8,6 +8,9 @@ import com.sealand.common.utils.AssertUtil;
 import com.sealand.gateway.core.request.GatewayRequest;
 import com.sealand.gateway.core.response.GatewayResponse;
 
+/**
+ * 网关上下文，包含请求，响应以及规则
+ */
 public class GatewayContext extends BasicContext{
 
     private GatewayRequest request;
@@ -137,7 +140,4 @@ public class GatewayContext extends BasicContext{
     public GatewayRequest getOriginRequest(){
         return  request;
     }
-
-
-
 }
