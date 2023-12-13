@@ -58,24 +58,6 @@ public class RequestHelper {
     }
 
     /**
-     * @param gateWayRequest
-     * @param serviceId
-     * @return
-     */
-    private static Rule getRule(GatewayRequest gateWayRequest, String serviceId) {
-        String key = serviceId + "." + gateWayRequest.getPath();
-        Rule rule = DynamicConfigManager.getInstance().getRuleByPath(key);
-
-        if (rule != null) {
-            return rule;
-        }
-        return DynamicConfigManager.getInstance().getRuleByServiceId(serviceId)
-                .stream()
-                .filter(r -> gateWayRequest.getPath().startsWith(r.getPrefix()))
-                .findAny().orElseThrow(() -> new ResponseException(PATH_NO_MATCHED));
-    }
-
-    /**
      * 构建Request请求对象
      */
     private static GatewayRequest doRequest(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) {
@@ -124,5 +106,23 @@ public class RequestHelper {
         return clientIp;
     }
 
+    /**
+     * 获取rule对象
+     *
+     * @param gateWayRequest
+     * @param serviceId
+     * @return
+     */
+    private static Rule getRule(GatewayRequest gateWayRequest, String serviceId) {
+        String key = serviceId + "." + gateWayRequest.getPath();
+        Rule rule = DynamicConfigManager.getInstance().getRuleByPath(key);
+
+        if (rule != null) {
+            return rule;
+        }
+        return DynamicConfigManager.getInstance().getRuleByServiceId(serviceId)
+                .stream().filter(r -> gateWayRequest.getPath().startsWith(r.getPrefix()))
+                .findAny().orElseThrow(() -> new ResponseException(PATH_NO_MATCHED));
+    }
 
 }

@@ -27,6 +27,11 @@ public class Rule implements Comparable<Rule>, Serializable {
     private String protocol;
 
     /**
+     * 后端服务id
+     */
+    private String serviceId;
+
+    /**
      * 规则排序，对应场景：一个路径对应多条规则，然后只执行一条规则的情况
      */
     private Integer order;
@@ -36,6 +41,9 @@ public class Rule implements Comparable<Rule>, Serializable {
      */
     private String prefix;
 
+    /**
+     * 路径集合
+     */
     private List<String> paths;
 
     private Set<FilterConfig> filterConfigs = new HashSet<>();
@@ -46,6 +54,14 @@ public class Rule implements Comparable<Rule>, Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
     }
 
     public String getName() {
@@ -100,10 +116,11 @@ public class Rule implements Comparable<Rule>, Serializable {
         super();
     }
 
-    public Rule(String id, String name, String protocol, Integer order, String prefix, List<String> paths, Set<FilterConfig> filterConfigs) {
+    public Rule(String id, String name, String protocol, String serviceId, Integer order, String prefix, List<String> paths, Set<FilterConfig> filterConfigs) {
         this.id = id;
         this.name = name;
         this.protocol = protocol;
+        this.serviceId = serviceId;
         this.order = order;
         this.prefix = prefix;
         this.paths = paths;
