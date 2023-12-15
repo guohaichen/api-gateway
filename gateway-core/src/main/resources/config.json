@@ -1,0 +1,19 @@
+{
+  "rules": [{
+      "id": "001",
+      "name": "1号规则",
+      "protocol": "http",
+      "serviceId": "backend-http-server",
+      "prefix": "/user",
+      "paths": [
+        "/http-server/ping",
+        "/http-server/test"
+      ],
+      "filtersConfigs": [{
+          "id": "load_balance_filter",
+          "config": {
+            "load_balance": "RoundRobin"
+          }
+        }]
+    }]
+}
