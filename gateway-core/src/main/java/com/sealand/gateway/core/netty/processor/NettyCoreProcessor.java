@@ -48,8 +48,7 @@ public class NettyCoreProcessor implements NettyProcessor {
         try {
             GatewayContext gatewayContext = RequestHelper.doContext(request, ctx);
             //构建过滤器链并执行过滤器逻辑
-            filterFactory.buildFilterChain(gatewayContext).doFilter(gatewayContext);
-            route(gatewayContext);
+            filterFactory.buildFilterChain(gatewayContext).executeFilter(gatewayContext);
         } catch (BaseException e) {
             log.error("process error {} {}", e.getCode().getCode(), e.getCode().getMessage());
             FullHttpResponse httpResponse = ResponseHelper.getHttpResponse(e.getCode());
@@ -72,51 +71,5 @@ public class NettyCoreProcessor implements NettyProcessor {
         ctx.writeAndFlush(httpResponse)
                 .addListener(ChannelFutureListener.CLOSE); //释放资源后关闭channel
         ReferenceCountUtil.release(request);
-    }
-
-    private void route(GatewayContext gatewayContext) {
-        Request request = gatewayContext.getRequest().build();
-        CompletableFuture<Response> future = AsyncHttpHelper.getInstance().executeRequest(request);
-
-        boolean whenComplete = ConfigLoader.getConfig().isWhenComplete();
-
-        if (whenComplete) {
-            future.whenComplete((response, throwable) -> {
-                complete(request, response, throwable, gatewayContext);
-            });
-        } else {
-            future.whenCompleteAsync((response, throwable) -> {
-                complete(request, response, throwable, gatewayContext);
-            });
-        }
-    }
-
-    private void complete(Request request,
-                          Response response,
-                          Throwable throwable,
-                          GatewayContext gatewayContext) {
-        gatewayContext.releaseRequest();
-
-        try {
-            if (Objects.nonNull(throwable)) {
-                String url = request.getUrl();
-                if (throwable instanceof TimeoutException) {
-                    log.warn("complete time out {}", url);
-                    gatewayContext.setThrowable(new ResponseException(ResponseCode.REQUEST_TIMEOUT));
-                } else {
-                    gatewayContext.setThrowable(new ConnectException(throwable,
-                            gatewayContext.getUniqueId(),
-                            url, ResponseCode.HTTP_RESPONSE_ERROR));
-                }
-            } else {
-                gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(response));
-            }
-        } catch (Throwable t) {
-            gatewayContext.setThrowable(new ResponseException(ResponseCode.INTERNAL_ERROR));
-            log.error("complete error", t);
-        } finally {
-            gatewayContext.written();
-            ResponseHelper.writeResponse(gatewayContext);
-        }
     }
 }
