@@ -15,6 +15,7 @@ import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenterListener;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.Set;
 
@@ -28,11 +29,11 @@ public class Bootstrap {
     public static void main(String[] args) {
         //加载网关核心静态配置
         Config config = ConfigLoader.getInstance().load(args);
-
         //插件初始化
 
         //配置中心管理器初始化，连接配置中心，监听配置的新增、修改、删除
         configAndSubscribe(config);
+        log.info("port :{}", config.getPort());
 
         //启动容器，主要是netty服务
         Container container = new Container(config);
@@ -63,11 +64,12 @@ public class Bootstrap {
     private static RegisterCenter registerAndSubscribe(Config config) {
         ServiceLoader<RegisterCenter> serviceLoader = ServiceLoader.load(RegisterCenter.class);
 
-        if (!serviceLoader.iterator().hasNext()) {
+        Iterator<RegisterCenter> iterator = serviceLoader.iterator();
+        if (!iterator.hasNext()) {
             log.info("cannot found RegisterCenter impl");
             throw new RuntimeException("cannot found RegisterCenter impl");
         } else {
-            final RegisterCenter registerCenter = serviceLoader.iterator().next();
+            final RegisterCenter registerCenter = iterator.next();
             registerCenter.init(config.getRegistryAddress(), config.getEnv());
 
             //构造网关服务定义和服务实例（主要用于 nacos 注册中心注册服务和定义服务）

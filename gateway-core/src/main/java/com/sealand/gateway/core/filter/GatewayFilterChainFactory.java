@@ -2,6 +2,7 @@ package com.sealand.gateway.core.filter;
 
 import com.sealand.common.config.Rule;
 import com.sealand.gateway.core.context.GatewayContext;
+import com.sealand.gateway.core.filter.router.RouterFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,8 +36,9 @@ public class GatewayFilterChainFactory implements FilterFactory {
      */
     public GatewayFilterChainFactory() {
         ServiceLoader<Filter> serviceLoader = ServiceLoader.load(Filter.class);
-        while (serviceLoader.iterator().hasNext()) {
-            Filter filter = serviceLoader.iterator().next();
+        Iterator<Filter> iterator = serviceLoader.iterator();
+        while (iterator.hasNext()) {
+            Filter filter = iterator.next();
             FilterAspect annotation = filter.getClass().getAnnotation(FilterAspect.class);
             if (annotation != null) {
                 String filterId = annotation.id();
@@ -68,9 +70,10 @@ public class GatewayFilterChainFactory implements FilterFactory {
         Rule rule = ctx.getRule();
         if (rule != null) {
             Set<Rule.FilterConfig> filterConfigs = rule.getFilterConfigs();
+            Iterator<Rule.FilterConfig> iterator = filterConfigs.iterator();
             Rule.FilterConfig filterConfig;
-            while (filterConfigs.iterator().hasNext()) {
-                filterConfig = filterConfigs.iterator().next();
+            while (iterator.hasNext()) {
+                filterConfig = iterator.next();
                 if (filterConfig == null) {
                     continue;
                 }
