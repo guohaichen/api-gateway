@@ -147,7 +147,7 @@ import java.util.stream.Collectors;
                     EventListener eventListener = new NacosRegisterListener();
                     eventListener.onEvent(new NamingEvent(service, null));
                     namingService.subscribe(service, env, eventListener);
-                    log.info("订阅subscribeL\t{},环境:\t{}", service, env);
+                    log.info("订阅subscribe:\t{},环境:\t{}", service, env);
                 }
                 serviceList = namingService.getServicesOfServer(++pageNo, pageSize, env).getData();
 
@@ -179,7 +179,7 @@ import java.util.stream.Collectors;
                         set.add(serviceInstance);
                     }
 
-                    registerCenterListenerList.stream().forEach(l -> l.onChange(serviceDefinition, set));
+                    registerCenterListenerList.forEach(l -> l.onChange(serviceDefinition, set));
                 } catch (NacosException e) {
                     throw new RuntimeException(e);
                 }

@@ -3,6 +3,7 @@ package com.sealand.gateway.core.filter;
 import com.sealand.gateway.core.context.GatewayContext;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class GatewayFilterChain {
         filters.addAll(filterList);
     }
 
-    public GatewayContext doFilter(GatewayContext ctx) {
+    public GatewayContext executeFilter(GatewayContext ctx) {
         if (filters.isEmpty()) {
             return ctx;
         }
