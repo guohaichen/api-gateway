@@ -7,9 +7,9 @@ import com.sealand.gateway.core.context.GatewayContext;
  * @create 2023-12-13
  * @desc
  */
-public interface FilterFactory {
+public interface FilterFactory<T> {
 
     GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception;
 
-    <T> T getFilterInfo(String filterId) throws Exception;
+    T getFilterByFilterId(String filterId) throws Exception;
 }
