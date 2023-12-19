@@ -4,7 +4,6 @@ import com.sealand.gateway.core.context.GatewayContext;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -15,7 +14,7 @@ import java.util.List;
 @Slf4j
 public class GatewayFilterChain {
 
-    private final List<Filter> filters = new LinkedList<>();
+    private final List<Filter> filters = new ArrayList<>();
 
     //新增过滤器
     public GatewayFilterChain addFilter(Filter filter) {
@@ -27,18 +26,17 @@ public class GatewayFilterChain {
         filters.addAll(filterList);
     }
 
-    public GatewayContext executeFilter(GatewayContext ctx) {
+    public void executeFilter(GatewayContext ctx) {
         if (filters.isEmpty()) {
-            return ctx;
+            return;
         }
         try {
             for (Filter filter : filters) {
                 filter.doFilter(ctx);
             }
         } catch (Exception e) {
-            log.info("doFilter fail, error : {}", e.getMessage());
+            log.info("doFilter failed, error : {}", e.getMessage());
         }
-        return ctx;
     }
 
 

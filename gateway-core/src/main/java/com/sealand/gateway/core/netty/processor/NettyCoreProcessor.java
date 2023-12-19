@@ -32,7 +32,7 @@ import java.util.concurrent.TimeoutException;
 @Slf4j
 public class NettyCoreProcessor implements NettyProcessor {
 
-    private FilterFactory filterFactory = GatewayFilterChainFactory.getInstance();
+    private final FilterFactory filterFactory = GatewayFilterChainFactory.getInstance();
 
 
 

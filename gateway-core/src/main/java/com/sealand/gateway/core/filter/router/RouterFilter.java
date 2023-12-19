@@ -1,5 +1,6 @@
 package com.sealand.gateway.core.filter.router;
 
+import com.sealand.common.config.Rule;
 import com.sealand.common.enums.ResponseCode;
 import com.sealand.common.exception.ConnectException;
 import com.sealand.common.exception.ResponseException;
@@ -14,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
@@ -54,28 +56,43 @@ public class RouterFilter implements Filter {
                           GatewayContext gatewayContext) {
         gatewayContext.releaseRequest();
 
+        Rule rule = gatewayContext.getRule();
+        int currentRetryTimes = gatewayContext.getCurrentRetryTimes();
+        int confRetryTimes = rule.getRetryConfig().getTimes();
+
+        if ((throwable instanceof TimeoutException
+                || throwable instanceof IOException)
+                && currentRetryTimes <= confRetryTimes) {
+            doRetry(gatewayContext, currentRetryTimes);
+            return;
+        }
+
         try {
             if (Objects.nonNull(throwable)) {
                 String url = request.getUrl();
                 if (throwable instanceof TimeoutException) {
                     log.warn("complete time out {}", url);
                     gatewayContext.setThrowable(new ResponseException(ResponseCode.REQUEST_TIMEOUT));
+                    gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(ResponseCode.REQUEST_TIMEOUT));
                 } else {
                     gatewayContext.setThrowable(new ConnectException(throwable,
                             gatewayContext.getUniqueId(),
                             url, ResponseCode.HTTP_RESPONSE_ERROR));
+                    gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(ResponseCode.HTTP_RESPONSE_ERROR));
                 }
             } else {
                 gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(response));
             }
         } catch (Throwable t) {
             gatewayContext.setThrowable(new ResponseException(ResponseCode.INTERNAL_ERROR));
+            gatewayContext.setResponse(GatewayResponse.buildGatewayResponse(ResponseCode.INTERNAL_ERROR));
             log.error("complete error", t);
         } finally {
             gatewayContext.written();
             ResponseHelper.writeResponse(gatewayContext);
         }
     }
+
 
     private void doRetry(GatewayContext gatewayContext, int retryTimes) {
         System.out.println("当前重试次数为" + retryTimes);

@@ -52,7 +52,7 @@ public class RequestHelper {
                 0);
 
 
-        //todo 后续服务发现做完，这里都要改成动态的
+        //已经改为从配置中心动态获取 host和port；
 //        gatewayContext.getRequest().setModifyHost("127.0.0.1:8080");
 
         return gatewayContext;

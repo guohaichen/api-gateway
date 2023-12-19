@@ -27,26 +27,31 @@ public class Rule implements Comparable<Rule>, Serializable {
     private String protocol;
 
     /**
-     * 后端服务id
+     * 后端服务ID
      */
     private String serviceId;
-
+    /**
+     * 请求前缀
+     */
+    private String prefix;
+    /**
+     * 路径集合
+     */
+    private List<String> paths;
     /**
      * 规则排序，对应场景：一个路径对应多条规则，然后只执行一条规则的情况
      */
     private Integer order;
 
-    /**
-     * 请求前缀
-     */
-    private String prefix;
-
-    /**
-     * 路径集合
-     */
-    private List<String> paths;
-
     private Set<FilterConfig> filterConfigs = new HashSet<>();
+
+    /**
+     * 限流规则
+     */
+    private Set<FlowCtlConfig> flowCtlConfigs = new HashSet<>();
+
+    private RetryConfig retryConfig = new RetryConfig();
+
 
     public String getId() {
         return id;
@@ -54,14 +59,6 @@ public class Rule implements Comparable<Rule>, Serializable {
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public String getServiceId() {
-        return serviceId;
-    }
-
-    public void setServiceId(String serviceId) {
-        this.serviceId = serviceId;
     }
 
     public String getName() {
@@ -96,6 +93,14 @@ public class Rule implements Comparable<Rule>, Serializable {
         this.filterConfigs = filterConfigs;
     }
 
+    public String getServiceId() {
+        return serviceId;
+    }
+
+    public void setServiceId(String serviceId) {
+        this.serviceId = serviceId;
+    }
+
     public String getPrefix() {
         return prefix;
     }
@@ -112,20 +117,38 @@ public class Rule implements Comparable<Rule>, Serializable {
         this.paths = paths;
     }
 
+
+    public Set<FlowCtlConfig> getFlowCtlConfigs() {
+        return flowCtlConfigs;
+    }
+
+    public void setFlowCtlConfigs(Set<FlowCtlConfig> flowCtlConfigs) {
+        this.flowCtlConfigs = flowCtlConfigs;
+    }
+
+    public RetryConfig getRetryConfig() {
+        return retryConfig;
+    }
+
+    public void setRetryConfig(RetryConfig retryConfig) {
+        this.retryConfig = retryConfig;
+    }
+
     public Rule() {
         super();
     }
 
-    public Rule(String id, String name, String protocol, String serviceId, Integer order, String prefix, List<String> paths, Set<FilterConfig> filterConfigs) {
+    public Rule(String id, String name, String protocol, String serviceId, String prefix, List<String> paths, Integer order, Set<FilterConfig> filterConfigs) {
         this.id = id;
         this.name = name;
         this.protocol = protocol;
         this.serviceId = serviceId;
-        this.order = order;
         this.prefix = prefix;
         this.paths = paths;
+        this.order = order;
         this.filterConfigs = filterConfigs;
     }
+
 
     public static class FilterConfig {
 
@@ -172,6 +195,70 @@ public class Rule implements Comparable<Rule>, Serializable {
         }
     }
 
+    public static class FlowCtlConfig {
+        /**
+         * 限流类型-可能是path，也可能是IP或者服务
+         */
+        private String type;
+        /**
+         * 限流对象的值
+         */
+        private String value;
+        /**
+         * 限流模式-单机还有分布式
+         */
+        private String model;
+        /**
+         * 限流规则,是一个JSON
+         */
+        private String config;
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+
+        public String getModel() {
+            return model;
+        }
+
+        public void setModel(String model) {
+            this.model = model;
+        }
+
+        public String getConfig() {
+            return config;
+        }
+
+        public void setConfig(String config) {
+            this.config = config;
+        }
+    }
+
+    public static class RetryConfig {
+        private int times;
+
+        public int getTimes() {
+            return times;
+        }
+
+        public void setTimes(int times) {
+            this.times = times;
+        }
+    }
+
+
     /**
      * 向规则里面添加过滤器
      *
@@ -203,15 +290,14 @@ public class Rule implements Comparable<Rule>, Serializable {
      *
      * @return
      */
-    public boolean hashId() {
-        for (FilterConfig config : filterConfigs) {
-            if (config.getId().equalsIgnoreCase(id)) {
+    public boolean hashId(String id) {
+        for (FilterConfig filterConfig : filterConfigs) {
+            if (filterConfig.getId().equalsIgnoreCase(id)) {
                 return true;
             }
         }
         return false;
     }
-
 
     @Override
     public int compareTo(Rule o) {

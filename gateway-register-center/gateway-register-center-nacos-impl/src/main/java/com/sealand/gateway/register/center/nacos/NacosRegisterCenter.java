@@ -21,10 +21,7 @@ import com.sealand.common.constants.GatewayConst;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenterListener;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -130,14 +127,13 @@ import java.util.stream.Collectors;
         try {
             //已订阅的服务
             Set<String> subscribeService = namingService.getSubscribeServices().stream().map(ServiceInfo::getName).collect(Collectors.toSet());
-
+            log.info("nacos已订阅的服务:{}",Arrays.toString(subscribeService.toArray()));
             int pageNo = 1;
             int pageSize = 100;
 
             //分页从nacos拿到服务列表
             List<String> serviceList = namingService.getServicesOfServer(pageNo, pageSize, env).getData();
             while (CollectionUtils.isNotEmpty(serviceList)) {
-                log.info("service list size : {}", serviceList.size());
                 for (String service : serviceList) {
                     if (subscribeService.contains(service)) {
                         continue;

@@ -148,4 +148,8 @@ public class GatewayContext extends BasicContext {
     public GatewayRequest getOriginRequest() {
         return request;
     }
+
+    public int getCurrentRetryTimes() {
+        return currentRetryTimes;
+    }
 }
