@@ -9,7 +9,7 @@
         "/http-server/ping",
         "/http-server/test"
       ],
-      "filtersConfigs": [{
+      "filterConfigs": [{
           "id": "load_balance_filter",
           "config": {
             "load_balance": "RoundRobin"
