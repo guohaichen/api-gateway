@@ -40,8 +40,8 @@ public class RoundRobinLoadBalanceRule implements IGatewayLoadBalanceRule {
     }
 
     @Override
-    public ServiceInstance chooseServiceByContext(GatewayContext ctx) {
-        return chooseServiceById(ctx.getUniqueId());
+    public ServiceInstance chooseServiceByContext(GatewayContext gatewayContext) {
+        return chooseServiceById(gatewayContext.getUniqueId());
     }
 
     @Override

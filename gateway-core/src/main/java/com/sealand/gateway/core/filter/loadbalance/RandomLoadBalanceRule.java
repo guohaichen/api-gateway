@@ -41,8 +41,8 @@ public class RandomLoadBalanceRule implements IGatewayLoadBalanceRule {
     }
 
     @Override
-    public ServiceInstance chooseServiceByContext(GatewayContext ctx) {
-        String serviceId = ctx.getUniqueId();
+    public ServiceInstance chooseServiceByContext(GatewayContext gatewayContext) {
+        String serviceId = gatewayContext.getUniqueId();
         return chooseServiceById(serviceId);
     }
 

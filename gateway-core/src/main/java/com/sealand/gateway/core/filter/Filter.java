@@ -9,7 +9,7 @@ import com.sealand.gateway.core.context.GatewayContext;
  */
 public interface Filter {
 
-    void doFilter(GatewayContext ctx) throws Exception;
+    void doFilter(GatewayContext gatewayContext) throws Exception;
 
     default int getOrder() {
         FilterAspect filterAspect = this.getClass().getAnnotation(FilterAspect.class);

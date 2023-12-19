@@ -11,10 +11,10 @@ import com.sealand.gateway.core.context.GatewayContext;
 public interface IGatewayLoadBalanceRule {
     /**
      * 通过上下文获取服务示例
-     * @param ctx
+     * @param gatewayContext
      * @return
      */
-    ServiceInstance chooseServiceByContext(GatewayContext ctx);
+    ServiceInstance chooseServiceByContext(GatewayContext gatewayContext);
 
     /**
      * 通过服务id获取对应的服务实例

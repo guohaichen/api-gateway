@@ -58,16 +58,16 @@ public class GatewayFilterChainFactory implements FilterFactory<Filter> {
     }
 
     /**
-     * @param ctx 网关上下文，包含请求，响应以及rule
+     * @param gatewayContext 网关上下文，包含请求，响应以及rule
      * @return
      * @throws Exception
      * @desc 构建过滤器链
      */
     @Override
-    public GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception {
+    public GatewayFilterChain buildFilterChain(GatewayContext gatewayContext) throws Exception {
         GatewayFilterChain filterChain = new GatewayFilterChain();
         List<Filter> filters = new ArrayList<>();
-        Rule rule = ctx.getRule();
+        Rule rule = gatewayContext.getRule();
         /* rule是配置中心的配置，
          *  "rules": [{
          *       "id": "001",

@@ -26,13 +26,13 @@ public class GatewayFilterChain {
         filters.addAll(filterList);
     }
 
-    public void executeFilter(GatewayContext ctx) {
+    public void executeFilter(GatewayContext gatewayContext) {
         if (filters.isEmpty()) {
             return;
         }
         try {
             for (Filter filter : filters) {
-                filter.doFilter(ctx);
+                filter.doFilter(gatewayContext);
             }
         } catch (Exception e) {
             log.info("doFilter failed, error : {}", e.getMessage());

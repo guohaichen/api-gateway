@@ -30,12 +30,12 @@ import static com.sealand.common.constants.FilterConst.*;
         order = LOAD_BALANCE_FILTER_ORDER)
 public class LoadBalanceFilter implements Filter {
     @Override
-    public void doFilter(GatewayContext ctx) {
-        String serviceId = ctx.getUniqueId();
-        IGatewayLoadBalanceRule gatewayLoadBalanceRule = getLoadBalanceRule(ctx);
+    public void doFilter(GatewayContext gatewayContext) {
+        String serviceId = gatewayContext.getUniqueId();
+        IGatewayLoadBalanceRule gatewayLoadBalanceRule = getLoadBalanceRule(gatewayContext);
         ServiceInstance serviceInstance = gatewayLoadBalanceRule.chooseServiceById(serviceId);
 
-        GatewayRequest request = ctx.getRequest();
+        GatewayRequest request = gatewayContext.getRequest();
         if (serviceInstance != null && request != null) {
             log.info("服务地址:{},端口号:{}", serviceInstance.getAddress(), serviceInstance.getPort());
             String host = serviceInstance.getIp() + ":" + serviceInstance.getPort();
@@ -49,12 +49,12 @@ public class LoadBalanceFilter implements Filter {
     /**
      * 根据配置获取负载均衡器
      *
-     * @param ctx
+     * @param gatewayContext
      * @return
      */
-    public IGatewayLoadBalanceRule getLoadBalanceRule(GatewayContext ctx) {
+    public IGatewayLoadBalanceRule getLoadBalanceRule(GatewayContext gatewayContext) {
         IGatewayLoadBalanceRule loadBalanceRule = null;
-        Rule configRule = ctx.getRule();
+        Rule configRule = gatewayContext.getRule();
         if (configRule != null) {
             Set<Rule.FilterConfig> filterConfigs = configRule.getFilterConfigs();
             Iterator<Rule.FilterConfig> iterator = filterConfigs.iterator();

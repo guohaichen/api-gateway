@@ -9,7 +9,7 @@ import com.sealand.gateway.core.context.GatewayContext;
  */
 public interface FilterFactory<T> {
 
-    GatewayFilterChain buildFilterChain(GatewayContext ctx) throws Exception;
+    GatewayFilterChain buildFilterChain(GatewayContext gatewayContext) throws Exception;
 
     T getFilterByFilterId(String filterId) throws Exception;
 }
