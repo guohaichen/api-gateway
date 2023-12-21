@@ -26,6 +26,10 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
 
     @Override
     public void init(String registerAddress, String env) {
+
+        this.registerAddress = registerAddress;
+        this.env = env;
+
         //Curator工厂类创建客户端对象
         curatorClient = CuratorFrameworkFactory.builder()
                 .connectString(registerAddress)
@@ -40,6 +44,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
         try {
             //创建服务信息创建节点
             curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + serviceDefinition.getServiceId(), JSON.toJSONBytes(serviceInstance));
+            log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
         } catch (Exception e) {
             log.error("zookeeper 创建节点失败,错误信息:{}", e.getMessage());
             throw new RuntimeException("zookeeper 创建节点失败!");
