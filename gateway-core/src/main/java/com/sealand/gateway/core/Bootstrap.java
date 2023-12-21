@@ -33,7 +33,6 @@ public class Bootstrap {
 
         //配置中心管理器初始化，连接配置中心，监听配置的新增、修改、删除
         configAndSubscribe(config);
-        log.info("port :{}", config.getPort());
 
         //启动容器，主要是netty服务
         Container container = new Container(config);

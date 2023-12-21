@@ -1,1 +1,2 @@
 com.sealand.gateway.register.center.nacos.NacosRegisterCenter
+com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCenter

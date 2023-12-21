@@ -60,9 +60,7 @@ public class RouterFilter implements Filter {
         int currentRetryTimes = gatewayContext.getCurrentRetryTimes();
         int confRetryTimes = rule.getRetryConfig().getTimes();
 
-        if ((throwable instanceof TimeoutException
-                || throwable instanceof IOException)
-                && currentRetryTimes <= confRetryTimes) {
+        if ((throwable instanceof TimeoutException || throwable instanceof IOException) && currentRetryTimes <= confRetryTimes) {
             doRetry(gatewayContext, currentRetryTimes);
             return;
         }
