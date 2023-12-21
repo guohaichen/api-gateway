@@ -1,6 +1,7 @@
 package com.sealand.gateway.core;
 
 import com.alibaba.fastjson.JSON;
+import com.sealand.gateway.core.center.ConfigAndRegisterCenterFactory;
 import com.sealand.gateway.core.config.Config;
 import com.sealand.gateway.core.config.ConfigLoader;
 import com.sealand.gateway.core.netty.Container;
@@ -48,48 +49,38 @@ public class Bootstrap {
         }));
     }
 
+
     private static void configAndSubscribe(Config config) {
-        ServiceLoader<ConfigCenter> serviceLoader = ServiceLoader.load(ConfigCenter.class);
-        final ConfigCenter configCenter = serviceLoader.iterator().next();
-        if (configCenter == null) {
-            log.info("cannot found configCenter impl");
-            throw new RuntimeException("cannot found configCenter impl");
-        } else {
-            configCenter.init(config.getRegistryAddress(), config.getEnv());
-            configCenter.subscribeRulesChange(ruleList -> DynamicConfigManager.getInstance().putAllRule(ruleList));
-        }
+        //根据配置文件选择对应的注册中心
+        final ConfigCenter configCenter = ConfigAndRegisterCenterFactory.chooseConfigCenterType(config.getRegisterAndConfigCenter());
+
+        configCenter.init(config.getRegistryAddress(), config.getEnv());
+        configCenter.subscribeRulesChange(ruleList -> DynamicConfigManager.getInstance().putAllRule(ruleList));
     }
 
     private static RegisterCenter registerAndSubscribe(Config config) {
-        ServiceLoader<RegisterCenter> serviceLoader = ServiceLoader.load(RegisterCenter.class);
+        RegisterCenter registerCenter = ConfigAndRegisterCenterFactory.chooseRegisterCenterType(config.getRegisterAndConfigCenter());
+        registerCenter.init(config.getRegistryAddress(), config.getEnv());
 
-        Iterator<RegisterCenter> iterator = serviceLoader.iterator();
-        if (!iterator.hasNext()) {
-            log.info("cannot found RegisterCenter impl");
-            throw new RuntimeException("cannot found RegisterCenter impl");
-        } else {
-            final RegisterCenter registerCenter = iterator.next();
-            registerCenter.init(config.getRegistryAddress(), config.getEnv());
+        //构造网关服务定义和服务实例（主要用于 nacos 注册中心注册服务和定义服务）
+        ServiceDefinition serviceDefinition = buildGatewayServiceDefinition(config);
+        ServiceInstance serviceInstance = buildGatewayServiceInstance(config);
+        //注册
+        registerCenter.register(serviceDefinition, serviceInstance);
 
-            //构造网关服务定义和服务实例（主要用于 nacos 注册中心注册服务和定义服务）
-            ServiceDefinition serviceDefinition = buildGatewayServiceDefinition(config);
-            ServiceInstance serviceInstance = buildGatewayServiceInstance(config);
-            //注册
-            registerCenter.register(serviceDefinition, serviceInstance);
+        //订阅
+        registerCenter.subscribeAllServicesChange(new RegisterCenterListener() {
+            @Override
+            public void onChange(ServiceDefinition serviceDefinition, Set<ServiceInstance> serviceInstanceSet) {
+                log.info("refresh service and instance: {} {}", serviceDefinition.getUniqueId(),
+                        JSON.toJSON(serviceInstanceSet));
+                DynamicConfigManager manager = DynamicConfigManager.getInstance();
+                manager.addServiceInstance(serviceDefinition.getUniqueId(), serviceInstanceSet);
+                manager.putServiceDefinition(serviceDefinition.getUniqueId(), serviceDefinition);
+            }
+        });
+        return registerCenter;
 
-            //订阅
-            registerCenter.subscribeAllServicesChange(new RegisterCenterListener() {
-                @Override
-                public void onChange(ServiceDefinition serviceDefinition, Set<ServiceInstance> serviceInstanceSet) {
-                    log.info("refresh service and instance: {} {}", serviceDefinition.getUniqueId(),
-                            JSON.toJSON(serviceInstanceSet));
-                    DynamicConfigManager manager = DynamicConfigManager.getInstance();
-                    manager.addServiceInstance(serviceDefinition.getUniqueId(), serviceInstanceSet);
-                    manager.putServiceDefinition(serviceDefinition.getUniqueId(), serviceDefinition);
-                }
-            });
-            return registerCenter;
-        }
     }
 
     private static ServiceInstance buildGatewayServiceInstance(Config config) {

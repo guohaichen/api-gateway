@@ -21,8 +21,10 @@ public class Config {
 
     private String env = "dev";
 
-    //netty
+    //注册/配置中心实现动态配置;
+    private String registerAndConfigCenter = "nacos";
 
+    //netty
     private int eventLoopGroupBossNum = 1;
 
     private int eventLoopGroupWorkerNum = Runtime.getRuntime().availableProcessors();
