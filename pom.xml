@@ -16,7 +16,6 @@
         <module>gateway-client</module>
         <module>backend-http-server</module>
         <module>backend-dubbo-server</module>
-        <module>gateway-register-center/gateway-register-center-zookeeper-impl</module>
     </modules>
 
     <properties>

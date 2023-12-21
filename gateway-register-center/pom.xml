@@ -13,6 +13,7 @@
     <modules>
         <module>gateway-register-center-api</module>
         <module>gateway-register-center-nacos-impl</module>
+        <module>gateway-register-center-zookeeper-impl</module>
     </modules>
 
 
