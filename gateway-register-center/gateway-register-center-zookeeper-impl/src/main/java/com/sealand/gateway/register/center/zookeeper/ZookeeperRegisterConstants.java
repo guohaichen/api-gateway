@@ -7,5 +7,5 @@ package com.sealand.gateway.register.center.zookeeper;
  */
 //zookeeper常量
 public class ZookeeperRegisterConstants {
-    public final static String REGISTER_CENTER_ZOOKEEPER_PREFIX = "/api_gateway/service/";
+    public final static String REGISTER_CENTER_ZOOKEEPER_PREFIX = "/api-gateway/service";
 }

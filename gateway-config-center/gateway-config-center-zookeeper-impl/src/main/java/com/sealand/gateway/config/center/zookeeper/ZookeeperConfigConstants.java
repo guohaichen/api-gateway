@@ -6,5 +6,5 @@ package com.sealand.gateway.config.center.zookeeper;
  * @desc
  */
 public class ZookeeperConfigConstants {
-    public final static String Config_CENTER_ZOOKEEPER_PREFIX = "/api_gateway/config/";
+    public final static String Config_CENTER_ZOOKEEPER_PREFIX = "/api_gateway/config";
 }
