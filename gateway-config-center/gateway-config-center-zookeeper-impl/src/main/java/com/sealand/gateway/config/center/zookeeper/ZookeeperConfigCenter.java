@@ -2,6 +2,7 @@ package com.sealand.gateway.config.center.zookeeper;
 
 import com.alibaba.fastjson.JSON;
 import com.sealand.common.config.Rule;
+import com.sealand.common.constants.BasicConst;
 import com.sealand.gateway.config.center.api.ConfigCenter;
 import com.sealand.gateway.config.center.api.RulesChangeListener;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +27,7 @@ public class ZookeeperConfigCenter implements ConfigCenter {
 
     private static final String DATA_ID = "api-gateway";
 
-    private static final String CONFIG_ID = Config_CENTER_ZOOKEEPER_PREFIX + DATA_ID;
+    private static final String CONFIG_ID = Config_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + DATA_ID;
 
     private String serverAddress;
 
@@ -48,7 +49,7 @@ public class ZookeeperConfigCenter implements ConfigCenter {
         try {
             //获取配置
             byte[] bytesConfig = client.getData().forPath(CONFIG_ID);
-            String config = Arrays.toString(bytesConfig);
+            String config = new String(bytesConfig);
             List<Rule> rules = JSON.parseObject(config).getJSONArray("rules").toJavaList(Rule.class);
 
             rulesChangeListener.onRulesChange(rules);
@@ -61,14 +62,12 @@ public class ZookeeperConfigCenter implements ConfigCenter {
                 public void nodeChanged() throws Exception {
                     if (nodeCache.getCurrentData() != null) {
                         log.info("zookeeper配置:{} 发生变化", CONFIG_ID);
-                        String changedConfig = Arrays.toString(nodeCache.getCurrentData().getData());
+                        String changedConfig = new String(nodeCache.getCurrentData().getData());
                         List<Rule> rules = JSON.parseObject(changedConfig).getJSONArray("rules").toJavaList(Rule.class);
                         rulesChangeListener.onRulesChange(rules);
                     }
                 }
             });
-
-
         } catch (Exception e) {
             log.debug("zookeeper未获取到该配置:{}", CONFIG_ID);
             throw new RuntimeException(e);

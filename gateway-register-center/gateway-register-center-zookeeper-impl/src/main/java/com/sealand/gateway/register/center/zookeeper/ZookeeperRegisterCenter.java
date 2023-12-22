@@ -3,14 +3,23 @@ package com.sealand.gateway.register.center.zookeeper;
 import com.alibaba.fastjson.JSON;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
+import com.sealand.common.constants.BasicConst;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenterListener;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.retry.ExponentialBackoffRetry;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EventListener;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterConstants.REGISTER_CENTER_ZOOKEEPER_PREFIX;
 
@@ -21,8 +30,10 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     private String registerAddress;
 
     private String env;
-
+    @Getter
     private CuratorFramework curatorClient;
+
+    private List<RegisterCenterListener> registerCenterListenerList = new CopyOnWriteArrayList<>();
 
     @Override
     public void init(String registerAddress, String env) {
@@ -33,6 +44,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
         //Curator工厂类创建客户端对象
         curatorClient = CuratorFrameworkFactory.builder()
                 .connectString(registerAddress)
+                .retryPolicy(new ExponentialBackoffRetry(1000, 3))
                 .namespace(env)
                 .build();
         //启动客户端
@@ -43,7 +55,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     public void register(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         try {
             //创建服务信息创建节点
-            curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + serviceDefinition.getServiceId(), JSON.toJSONBytes(serviceInstance));
+            curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId(), JSON.toJSONBytes(serviceInstance));
             log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
         } catch (Exception e) {
             log.error("zookeeper 创建节点失败,错误信息:{}", e.getMessage());
@@ -66,5 +78,45 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     @Override
     public void subscribeAllServicesChange(RegisterCenterListener registerCenterListener) {
 
+        try {
+            Set<ServiceInstance> serviceInstanceSet = new HashSet<>();
+            String serviceDefinitionString;
+            serviceDefinitionString = curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX);
+            if (StringUtils.isNotEmpty(serviceDefinitionString)) {
+                ServiceDefinition serviceDefinition = JSON.parseObject(serviceDefinitionString, ServiceDefinition.class);
+                registerCenterListenerList.forEach(l -> l.onChange(serviceDefinition, serviceInstanceSet));
+            }
+            //curator查询已订阅的服务
+            PathChildrenCache pathChildrenCache = new PathChildrenCache(curatorClient, REGISTER_CENTER_ZOOKEEPER_PREFIX, true);
+            pathChildrenCache.start(PathChildrenCache.StartMode.NORMAL);
+            pathChildrenCache.getListenable().addListener((curatorFramework, event) -> {
+                if (event.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED) {
+                    log.info("子节点更新");
+                    log.info("节点:{}", event.getData().getPath());
+                    String service = new String(event.getData().getData());
+                    log.info("数据:{}", service);
+                    serviceInstanceSet.add(JSON.parseObject(service, ServiceInstance.class));
+
+                } else if (event.getType() == PathChildrenCacheEvent.Type.INITIALIZED) {
+                    log.info("初始化操作");
+
+                } else if (event.getType() == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
+                    log.info("删除子节点");
+                    log.info("节点:{}", event.getData().getPath());
+                    String service = new String(event.getData().getData());
+                    log.info("数据:{}", service);
+                    serviceInstanceSet.remove(JSON.parseObject(service, ServiceInstance.class));
+
+                } else if (event.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
+                    log.info("添加子节点");
+                    log.info("节点:{}", event.getData().getPath());
+                    String service = new String(event.getData().getData());
+                    log.info("数据:{}", service);
+                    serviceInstanceSet.add(JSON.parseObject(service, ServiceInstance.class));
+                }
+            });
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }
