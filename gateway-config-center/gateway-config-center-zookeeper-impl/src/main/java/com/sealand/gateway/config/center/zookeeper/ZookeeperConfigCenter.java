@@ -39,8 +39,12 @@ public class ZookeeperConfigCenter implements ConfigCenter {
     public void init(String serverAddress, String env) {
         this.serverAddress = serverAddress;
         this.env = env;
-        //创建配置
-        this.client = CuratorFrameworkFactory.newClient(this.serverAddress, new ExponentialBackoffRetry(1000, 3));
+        //创建配置 //配置实例： /dev/api-gateway
+        this.client = CuratorFrameworkFactory.builder()
+                .connectString(this.serverAddress)
+                .namespace(this.env)
+                .retryPolicy(new ExponentialBackoffRetry(1000, 3))
+                .build();
         client.start();
     }
 

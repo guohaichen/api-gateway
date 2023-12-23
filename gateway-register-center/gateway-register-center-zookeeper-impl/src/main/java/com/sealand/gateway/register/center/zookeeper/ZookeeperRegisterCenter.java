@@ -33,7 +33,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     @Getter
     private CuratorFramework curatorClient;
 
-    private List<RegisterCenterListener> registerCenterListenerList = new CopyOnWriteArrayList<>();
+    private final List<RegisterCenterListener> registerCenterListenerList = new CopyOnWriteArrayList<>();
 
     @Override
     public void init(String registerAddress, String env) {
@@ -55,8 +55,11 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     public void register(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         try {
             //创建服务信息创建节点
-            curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId(), JSON.toJSONBytes(serviceInstance));
-            log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
+            byte[] bytes = curatorClient.getData().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId());
+            if (bytes.length == 0) {
+                curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId(), JSON.toJSONBytes(serviceInstance));
+                log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
+            }
         } catch (Exception e) {
             log.error("zookeeper 创建节点失败,错误信息:{}", e.getMessage());
             throw new RuntimeException("zookeeper 创建节点失败!");
@@ -67,7 +70,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     public void deregister(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         //删除节点,guaranteed保证即使出现网络故障，也可以删除节点，deletingChildrenIfNeeded表级联删除
         try {
-            curatorClient.delete().guaranteed().deletingChildrenIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + serviceDefinition.getServiceId());
+            curatorClient.delete().guaranteed().deletingChildrenIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId());
         } catch (Exception e) {
             log.error("zookeeper 删除节点失败，错误信息:{}", e.getMessage());
             throw new RuntimeException(e);
@@ -78,17 +81,19 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     @Override
     public void subscribeAllServicesChange(RegisterCenterListener registerCenterListener) {
 
+        registerCenterListenerList.add(registerCenterListener);
+        //todo
         try {
             Set<ServiceInstance> serviceInstanceSet = new HashSet<>();
-            String serviceDefinitionString;
-            serviceDefinitionString = curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX);
-            if (StringUtils.isNotEmpty(serviceDefinitionString)) {
-                ServiceDefinition serviceDefinition = JSON.parseObject(serviceDefinitionString, ServiceDefinition.class);
-                registerCenterListenerList.forEach(l -> l.onChange(serviceDefinition, serviceInstanceSet));
-            }
+            ServiceDefinition serviceDefinition = new ServiceDefinition();
+            serviceDefinition.setUniqueId("api-gateway:1.0.0");
+            registerCenterListenerList.forEach(l -> l.onChange(serviceDefinition, serviceInstanceSet));
             //curator查询已订阅的服务
             PathChildrenCache pathChildrenCache = new PathChildrenCache(curatorClient, REGISTER_CENTER_ZOOKEEPER_PREFIX, true);
+
+
             pathChildrenCache.start(PathChildrenCache.StartMode.NORMAL);
+            //监听事件
             pathChildrenCache.getListenable().addListener((curatorFramework, event) -> {
                 if (event.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED) {
                     log.info("子节点更新");
@@ -114,8 +119,10 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
                     log.info("数据:{}", service);
                     serviceInstanceSet.add(JSON.parseObject(service, ServiceInstance.class));
                 }
+
             });
-        } catch (Exception e) {
+        } catch (
+                Exception e) {
             throw new RuntimeException(e);
         }
     }
