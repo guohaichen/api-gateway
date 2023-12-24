@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * @author cgh
  * @create 2023-11-13
- * @desc 加在服务接口上
+ * @desc 加在服务方法上
  */
 
 @Target(ElementType.METHOD)
