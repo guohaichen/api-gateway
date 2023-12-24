@@ -1,2 +1,3 @@
+#SPI机制适配多注册中心
 com.sealand.gateway.register.center.nacos.NacosRegisterCenter
-# 配合ServiceLoader,将注册中心插件化
+com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCenter
