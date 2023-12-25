@@ -16,4 +16,6 @@ public class ApiProperties {
     private String registerAddress;
 
     private String env = "dev";
+
+    private String registerType;
 }
