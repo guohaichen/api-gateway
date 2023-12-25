@@ -2,6 +2,7 @@ package com.sealand.gateway.register.center.zookeeper;
 
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
+import com.sealand.common.constants.BasicConst;
 import com.sealand.common.utils.NetUtils;
 import com.sealand.common.utils.TimeUtil;
 import org.apache.curator.framework.CuratorFramework;
@@ -34,11 +35,14 @@ public class ZookeeperTest {
         //注册节点
         //zookeeper.register(buildGatewayServiceDefinition(), buildGatewayServiceInstance());
         CuratorFramework client = zookeeper.getCuratorClient();
+        String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + buildGatewayServiceDefinition().getServiceId() + BasicConst.PATH_SEPARATOR +
+                buildGatewayServiceInstance().getIp() + BasicConst.COLON_SEPARATOR + buildGatewayServiceInstance().getPort();
+//        client.delete().forPath(node);
         //查询该下所有子节点
-        List<String> pathList = client.getChildren().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX);
+        List<String> pathList = client.getChildren().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + buildGatewayServiceDefinition().getServiceId() );
         //查询该节点下所有数据
         for (String path : pathList) {
-            byte[] bytes = client.getData().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + PATH_SEPARATOR + path);
+            byte[] bytes = client.getData().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + buildGatewayServiceDefinition().getServiceId() + PATH_SEPARATOR + path);
             System.out.println(new String(bytes));
         }
         while (true) {
@@ -55,7 +59,7 @@ public class ZookeeperTest {
          true表示用于配置是否把节点内容缓存起来，如果配置为true，客户端在接收到节点列表变更的同时，也能够获取到节点的数据内容
          （即：event.getData().getData()）ͺ如果为false 则无法取到数据内容（即：event.getData().getData()）
          */
-        PathChildrenCache pathChildrenCache = new PathChildrenCache(client, REGISTER_CENTER_ZOOKEEPER_PREFIX, true);
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(client, REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + buildGatewayServiceDefinition().getServiceId(), true);
         /*
          * NORMAL:  普通启动方式, 在启动时缓存子节点数据
          * POST_INITIALIZED_EVENT：在启动时缓存子节点数据，提示初始化
@@ -95,8 +99,8 @@ public class ZookeeperTest {
         int port = 2182;
         ServiceInstance serviceInstance = new ServiceInstance();
         serviceInstance.setServiceInstanceId(localIp + COLON_SEPARATOR + port);
-        serviceInstance.setIp(localIp);
-        serviceInstance.setPort(port);
+        serviceInstance.setIp("192.168.126.3");
+        serviceInstance.setPort(8084);
         serviceInstance.setRegisterTime(TimeUtil.currentTimeMillis());
         return serviceInstance;
     }
@@ -104,8 +108,8 @@ public class ZookeeperTest {
     static ServiceDefinition buildGatewayServiceDefinition() {
         ServiceDefinition serviceDefinition = new ServiceDefinition();
         serviceDefinition.setInvokerMap(new HashMap<>());
-        serviceDefinition.setUniqueId("api-gateway");
-        serviceDefinition.setServiceId("api-gateway");
+        serviceDefinition.setUniqueId("backend-http-server");
+        serviceDefinition.setServiceId("backend-http-server");
         serviceDefinition.setEnvType("dev");
         return serviceDefinition;
     }
