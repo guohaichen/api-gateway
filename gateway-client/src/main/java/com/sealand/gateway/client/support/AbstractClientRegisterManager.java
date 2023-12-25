@@ -1,6 +1,8 @@
 package com.sealand.gateway.client.support;
 
 import com.sealand.gateway.register.center.api.RegisterCenter;
+import com.sealand.gateway.register.center.nacos.NacosRegisterCenter;
+import com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCenter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import com.sealand.common.config.ServiceDefinition;
@@ -24,12 +26,19 @@ public abstract class AbstractClientRegisterManager {
     protected AbstractClientRegisterManager(ApiProperties apiProperties) {
         this.apiProperties = apiProperties;
 
-        //初始化注册中心对象
+        String NACOS_REGISTER_CENTER = "nacos";
+        String ZOOKEEPER_REGISTER_CENTER = "zookeeper";
+
+        //todo 不灵活，写死了，
         ServiceLoader<RegisterCenter> serviceLoader = ServiceLoader.load(RegisterCenter.class);
-        for (RegisterCenter firstRegisterCenter : serviceLoader) {
-            if (firstRegisterCenter != null) {
-                registerCenter = firstRegisterCenter;
-                break;
+        for (RegisterCenter registerCenter : serviceLoader) {
+
+            if (registerCenter instanceof NacosRegisterCenter && NACOS_REGISTER_CENTER.equals(apiProperties.getRegisterType())) {
+                this.registerCenter = registerCenter;
+                log.info("nacos register init...");
+            } else if (registerCenter instanceof ZookeeperRegisterCenter && ZOOKEEPER_REGISTER_CENTER.equals(apiProperties.getRegisterType())) {
+                log.info("zookeeper register init...");
+                this.registerCenter = registerCenter;
             }
         }
         if (registerCenter == null) {

@@ -55,11 +55,13 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     public void register(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         try {
             //创建服务信息创建节点
-            byte[] bytes = curatorClient.getData().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId());
-            if (bytes.length == 0) {
-                curatorClient.create().creatingParentsIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId(), JSON.toJSONBytes(serviceInstance));
-                log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
-            }
+//            byte[] bytes = curatorClient.getData().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId());
+//            if (bytes.length == 0) {
+            String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId() + BasicConst.PATH_SEPARATOR +
+                    serviceInstance.getIp() + BasicConst.COLON_SEPARATOR + serviceInstance.getPort();
+            curatorClient.create().creatingParentsIfNeeded().forPath(node, JSON.toJSONBytes(serviceInstance));
+            log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
+//            }
         } catch (Exception e) {
             log.error("zookeeper 创建节点失败,错误信息:{}", e.getMessage());
             throw new RuntimeException("zookeeper 创建节点失败!");
@@ -68,9 +70,11 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
 
     @Override
     public void deregister(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
-        //删除节点,guaranteed保证即使出现网络故障，也可以删除节点，deletingChildrenIfNeeded表级联删除
+        //删除节点,guaranteed保证即使出现网络故障，也可以删除节点
         try {
-            curatorClient.delete().guaranteed().deletingChildrenIfNeeded().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId());
+            String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId() + BasicConst.PATH_SEPARATOR +
+                    serviceInstance.getIp() + BasicConst.COLON_SEPARATOR + serviceInstance.getPort();
+            curatorClient.delete().forPath(node);
         } catch (Exception e) {
             log.error("zookeeper 删除节点失败，错误信息:{}", e.getMessage());
             throw new RuntimeException(e);
