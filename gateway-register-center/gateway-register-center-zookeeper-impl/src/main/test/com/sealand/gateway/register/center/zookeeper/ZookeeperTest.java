@@ -8,19 +8,12 @@ import com.sealand.common.utils.TimeUtil;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.junit.Test;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 import static com.sealand.common.constants.BasicConst.COLON_SEPARATOR;
 import static com.sealand.common.constants.BasicConst.PATH_SEPARATOR;
-import static com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterConstants.REGISTER_CENTER_ZOOKEEPER_PREFIX;
 
 /**
  * @author cgh
@@ -28,6 +21,9 @@ import static com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCon
  * @desc
  */
 public class ZookeeperTest {
+
+    final static String REGISTER_CENTER_ZOOKEEPER_PREFIX = "/api-gateway/service";
+
     @Test
     public void test() throws Exception {
         ZookeeperRegisterCenter zookeeper = new ZookeeperRegisterCenter();
