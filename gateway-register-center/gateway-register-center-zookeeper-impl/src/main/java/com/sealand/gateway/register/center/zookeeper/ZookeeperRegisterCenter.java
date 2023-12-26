@@ -1,6 +1,7 @@
 package com.sealand.gateway.register.center.zookeeper;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.common.constants.BasicConst;
@@ -8,24 +9,22 @@ import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenterListener;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.*;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
-import java.util.EventListener;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterConstants.REGISTER_CENTER_ZOOKEEPER_PREFIX;
-
-
 @Slf4j
 public class ZookeeperRegisterCenter implements RegisterCenter {
+
+    final static String REGISTER_CENTER_ZOOKEEPER_PREFIX = "/api-gateway/service";
 
     private String registerAddress;
 
@@ -50,7 +49,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
         //启动客户端
         curatorClient.start();
     }
-
+    //todo 这里 ServiceDefinition 也应该写入到zookeeper
     @Override
     public void register(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         try {
@@ -70,7 +69,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
 
     @Override
     public void deregister(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
-        //删除节点,guaranteed保证即使出现网络故障，也可以删除节点
+        //删除节点,guaranteed保证即使出现网络故障，也可以删除节点 todo 停止项目时，发现没有执行删除，联合Bootstrap中 Runtime.getRuntime().addShutdownHook排查一下
         try {
             String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId() + BasicConst.PATH_SEPARATOR +
                     serviceInstance.getIp() + BasicConst.COLON_SEPARATOR + serviceInstance.getPort();
@@ -85,48 +84,79 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     @Override
     public void subscribeAllServicesChange(RegisterCenterListener registerCenterListener) {
 
-        registerCenterListenerList.add(registerCenterListener);
-        //todo
         try {
-            Set<ServiceInstance> serviceInstanceSet = new HashSet<>();
-            ServiceDefinition serviceDefinition = new ServiceDefinition();
-            serviceDefinition.setUniqueId("api-gateway:1.0.0");
-            registerCenterListenerList.forEach(l -> l.onChange(serviceDefinition, serviceInstanceSet));
-            //curator查询已订阅的服务
-            PathChildrenCache pathChildrenCache = new PathChildrenCache(curatorClient, REGISTER_CENTER_ZOOKEEPER_PREFIX, true);
+            registerCenterListenerList.add(registerCenterListener);
+            //查询所有服务
+            List<String> serviceDefinitionList = curatorClient.getChildren().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX);
+            if (CollectionUtils.isNotEmpty(serviceDefinitionList)) {
 
-
-            pathChildrenCache.start(PathChildrenCache.StartMode.NORMAL);
-            //监听事件
-            pathChildrenCache.getListenable().addListener((curatorFramework, event) -> {
-                if (event.getType() == PathChildrenCacheEvent.Type.CHILD_UPDATED) {
-                    log.info("子节点更新");
-                    log.info("节点:{}", event.getData().getPath());
-                    String service = new String(event.getData().getData());
-                    log.info("数据:{}", service);
-                    serviceInstanceSet.add(JSON.parseObject(service, ServiceInstance.class));
-
-                } else if (event.getType() == PathChildrenCacheEvent.Type.INITIALIZED) {
-                    log.info("初始化操作");
-
-                } else if (event.getType() == PathChildrenCacheEvent.Type.CHILD_REMOVED) {
-                    log.info("删除子节点");
-                    log.info("节点:{}", event.getData().getPath());
-                    String service = new String(event.getData().getData());
-                    log.info("数据:{}", service);
-                    serviceInstanceSet.remove(JSON.parseObject(service, ServiceInstance.class));
-
-                } else if (event.getType() == PathChildrenCacheEvent.Type.CHILD_ADDED) {
-                    log.info("添加子节点");
-                    log.info("节点:{}", event.getData().getPath());
-                    String service = new String(event.getData().getData());
-                    log.info("数据:{}", service);
-                    serviceInstanceSet.add(JSON.parseObject(service, ServiceInstance.class));
+                for (String serviceDefinitionPath : serviceDefinitionList) {
+                    Set<ServiceInstance> instanceHashSet = new HashSet<>();
+                    ServiceDefinition serviceDefinition = new ServiceDefinition(serviceDefinitionPath);
+                    //根据ServiceDefinition查询所有的ServiceInstance;
+                    List<String> serviceInstanceList = curatorClient.getChildren().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinitionPath);
+                    if (CollectionUtils.isNotEmpty(serviceInstanceList)) {
+                        for (String serviceInstancePath : serviceInstanceList) {
+                            // api-gateway/service/服务定义/服务实例
+                            String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinitionPath + BasicConst.PATH_SEPARATOR + serviceInstancePath;
+                            String serviceInstanceString = new String(curatorClient.getData().forPath(node));
+                            ServiceInstance serviceInstance = JSON.parseObject(serviceInstanceString, ServiceInstance.class);
+                            instanceHashSet.add(serviceInstance);
+                        }
+                        //首次扫描，将所有的服务建立关系，放在缓存DynamicConfigManager中；
+                        registerCenterListener.onChange(serviceDefinition, instanceHashSet);
+                    }
                 }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
 
+        watchNode();
+    }
+
+    private void watchNode() {
+        //监听 ServiceDefinition
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(curatorClient, REGISTER_CENTER_ZOOKEEPER_PREFIX, true);
+        pathChildrenCache.getListenable().addListener((curatorFramework, event) -> {
+            PathChildrenCacheEvent.Type type = event.getType();
+            switch (type) {
+                case CHILD_ADDED:
+
+                    break;
+                case CHILD_UPDATED:
+                    break;
+                case CHILD_REMOVED:
+                    break;
+            }
+        });
+
+
+        //使用curator.treeCache对各级子节点进行监听
+        try {
+            TreeCache treeCache = new TreeCache(curatorClient, REGISTER_CENTER_ZOOKEEPER_PREFIX);
+            treeCache.getListenable().addListener((curatorFramework, treeCacheEvent) -> {
+                String service;
+                switch (treeCacheEvent.getType()) {
+                    case NODE_ADDED:
+                        log.info("添加节点:{}", treeCacheEvent.getData().getPath());
+                        service = new String(treeCacheEvent.getData().getData());
+                        log.info("数据:{}", service);
+                        break;
+                    case NODE_UPDATED:
+                        log.info("更新节点:{}", treeCacheEvent.getData().getPath());
+                        service = new String(treeCacheEvent.getData().getData());
+                        log.info("数据:{}", service);
+                        break;
+                    case NODE_REMOVED:
+                        log.info("删除节点:{}", treeCacheEvent.getData().getPath());
+                        service = new String(treeCacheEvent.getData().getData());
+                        log.info("数据:{}", service);
+                        break;
+                }
             });
-        } catch (
-                Exception e) {
+            treeCache.start();
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
