@@ -49,18 +49,21 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
         //启动客户端
         curatorClient.start();
     }
+
     //todo 这里 ServiceDefinition 也应该写入到zookeeper
     @Override
     public void register(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         try {
+            String serviceDefinitionPath = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId();
+            //检查服务实例创建
+            if (curatorClient.checkExists().forPath(serviceDefinitionPath) == null) {
+                curatorClient.create().forPath(serviceDefinitionPath, JSON.toJSONBytes(serviceDefinition));
+            }
             //创建服务信息创建节点
-//            byte[] bytes = curatorClient.getData().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId());
-//            if (bytes.length == 0) {
             String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId() + BasicConst.PATH_SEPARATOR +
                     serviceInstance.getIp() + BasicConst.COLON_SEPARATOR + serviceInstance.getPort();
             curatorClient.create().creatingParentsIfNeeded().forPath(node, JSON.toJSONBytes(serviceInstance));
             log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
-//            }
         } catch (Exception e) {
             log.error("zookeeper 创建节点失败,错误信息:{}", e.getMessage());
             throw new RuntimeException("zookeeper 创建节点失败!");
@@ -92,7 +95,10 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
 
                 for (String serviceDefinitionPath : serviceDefinitionList) {
                     Set<ServiceInstance> instanceHashSet = new HashSet<>();
-                    ServiceDefinition serviceDefinition = new ServiceDefinition(serviceDefinitionPath);
+                    //在zookeeper中获取serviceDefinition的值，并反序列化
+                    byte[] bytes = curatorClient.getData().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinitionPath);
+                    ServiceDefinition serviceDefinition = JSON.parseObject(new String(bytes), ServiceDefinition.class);
+
                     //根据ServiceDefinition查询所有的ServiceInstance;
                     List<String> serviceInstanceList = curatorClient.getChildren().forPath(REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinitionPath);
                     if (CollectionUtils.isNotEmpty(serviceInstanceList)) {
@@ -103,20 +109,22 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
                             ServiceInstance serviceInstance = JSON.parseObject(serviceInstanceString, ServiceInstance.class);
                             instanceHashSet.add(serviceInstance);
                         }
-                        //首次扫描，将所有的服务建立关系，放在缓存DynamicConfigManager中；
-                        registerCenterListener.onChange(serviceDefinition, instanceHashSet);
+                        if (serviceDefinition != null) {
+                            //首次扫描，将所有的服务建立关系，放在缓存DynamicConfigManager中；
+                            registerCenterListener.onChange(serviceDefinition, instanceHashSet);
+                        }
                     }
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
         watchNode();
     }
 
+    //todo 事件监听仍需要进行onchange事件，
     private void watchNode() {
-        //监听 ServiceDefinition
+        /*//监听 ServiceDefinition
         PathChildrenCache pathChildrenCache = new PathChildrenCache(curatorClient, REGISTER_CENTER_ZOOKEEPER_PREFIX, true);
         pathChildrenCache.getListenable().addListener((curatorFramework, event) -> {
             PathChildrenCacheEvent.Type type = event.getType();
@@ -129,9 +137,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
                 case CHILD_REMOVED:
                     break;
             }
-        });
-
-
+        });*/
         //使用curator.treeCache对各级子节点进行监听
         try {
             TreeCache treeCache = new TreeCache(curatorClient, REGISTER_CENTER_ZOOKEEPER_PREFIX);
