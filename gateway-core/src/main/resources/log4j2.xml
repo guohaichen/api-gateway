@@ -38,7 +38,8 @@
 	    <Logger name="com.imooc.gateway.core.*" level="info" includeLocation="true">
 	      <AppenderRef ref="RandomAccessFile"/>
 	    </Logger>
-
+<!--        关闭zookeeper心跳日志-->
+        <logger name="org.apache.zookeeper.ClientCnxn" level="info" />
         <Root level="debug">
             <Appender-Ref ref="CONSOLE"/>
             <!--  
