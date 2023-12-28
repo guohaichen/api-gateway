@@ -32,13 +32,16 @@ public class LoadBalanceFilter implements Filter {
     @Override
     public void doFilter(GatewayContext gatewayContext) {
         String serviceId = gatewayContext.getUniqueId();
+        //根据配置选择具体的负载均衡策略
         IGatewayLoadBalanceRule gatewayLoadBalanceRule = getLoadBalanceRule(gatewayContext);
+        //选择注册中心中健康的服务（这里也是去DynamicConfigManager中找），具体是交给不同的负载均衡策略实现，例如轮询选择服务实例，随机选择实例等；
         ServiceInstance serviceInstance = gatewayLoadBalanceRule.chooseServiceById(serviceId);
 
         GatewayRequest request = gatewayContext.getRequest();
         if (serviceInstance != null && request != null) {
             log.info("服务地址:{},端口号:{}", serviceInstance.getAddress(), serviceInstance.getPort());
             String host = serviceInstance.getIp() + ":" + serviceInstance.getPort();
+            //健康服务实例的地址
             request.setModifyHost(host);
         } else {
             log.warn("{} hasn't instance for providing", serviceId);

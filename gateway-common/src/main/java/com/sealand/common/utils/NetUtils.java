@@ -15,10 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @PROJECT_NAME: api-gateway-prepare
- * @DESCRIPTION: 网络工具类
- * @USER: WuYang
- * @DATE: 2022/12/19 23:49
+ * @desc : 网络工具类
  */
 public class NetUtils {
 
