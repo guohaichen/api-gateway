@@ -62,8 +62,10 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
             //创建服务信息创建节点
             String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId() + BasicConst.PATH_SEPARATOR +
                     serviceInstance.getIp() + BasicConst.COLON_SEPARATOR + serviceInstance.getPort();
-            curatorClient.create().creatingParentsIfNeeded().forPath(node, JSON.toJSONBytes(serviceInstance));
-            log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
+            if (curatorClient.checkExists().forPath(node) == null) {
+                curatorClient.create().creatingParentsIfNeeded().forPath(node, JSON.toJSONBytes(serviceInstance));
+                log.info("zookeeper 写入服务成功，服务信息:{}", JSON.toJSONString(serviceInstance));
+            }
         } catch (Exception e) {
             log.error("zookeeper 创建节点失败,错误信息:{}", e.getMessage());
             throw new RuntimeException("zookeeper 创建节点失败!");
