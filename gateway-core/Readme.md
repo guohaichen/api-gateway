@@ -31,26 +31,69 @@
 3. `filterFactory`.buildFilterChain 构建过滤器链（这里根据配置中心的配置构建了过滤器链，比如负载均衡，路由过滤器等以及用户自定义的过滤器链，只要加了`FilterAspect`注解的都可以，利用了Java SPI 机制扫描了所有的Filter）； ==executeFilter==中遍历各个 `Filter`，执行 filter 的逻辑；以轮询过滤器举例，从 gatewayContext 中获取服务名，将 gatewayContext 中的请求中的 ip 和 port 替换为服务实例具体的 ip 和 port ；
 4. 最后的过滤器会执行到`RouterFilter`;
 
+### 核心接口
+
+#### LifeCycle
+
+> 定义核心功能服务的初始化，启动，关闭状态规范；核心服务实现该接口，做一些初始化配置，优雅关闭等；
+>
+> 实现类：
+>
+> Container
+>
+> NettyHttpClient
+>
+> NettyHttpServer
+
 ### 核心类
+
+#### NettyHttpClient
+
+> 项目中 处理Http请求 使用到了`AsyncHttpClient`框架，在 init()方法中初始化了 **asyncHttpClient**；
+>
+> 同类 Http 请求框架有 OkHttp、HttpClient等；
+>
+> - AsyncHttpClient:AsyncHttpClient 主要面向异步的 HTTP 请求，适合高并发、非阻塞的应用场景。高性能的轻量级框架。适合高并发、非阻塞的异步应用和对性能和轻量级要求较高的场景。
+> - OkHttp:OkHttp 是一个高性能的 HTTP 客户端，被广泛使用于 Android 平台以及 Java 环境。清晰的 API，易于使用，并支持同步和异步请求。内置了连接池，可重用连接，减少连接的建立和关闭带来的开销。 OkHttp 提供拦截器机制，允许在请求和响应的处理过程中添加、修改或拦截操作，提高了灵活性。
+> - HttpClient:Apache HttpClient 是 Apache 软件基金会的项目，经过长时间的发展和验证，稳定性较好。 相对于一些轻量级的库，Apache HttpClient 的包大小和性能开销可能较大。
+
+#### NettyHttpSever
+
+> 该类中就是初始化 netty server 端，pipeLine 添加自定义出站入站处理器 `NettyServerConnectManagerHandler`，入站处理器 `NettyServerHttpInboundHandler`，`HttpServerCodec`编解码器,`HttpObjectAggregator`聚合消息等；
+>
+> - `NettyServerHttpInboundHandler`中会将消息交给 `NettyProcessor`处理；
+> - `RequestHelper`.doContext 构建网关上下文`gatewayContext`；
+> - 过滤器工厂`FilterFactory`中的过滤器对 `gatewayContext`执行各个过滤器的逻辑，例如负载均衡等；
+> - 最后是`RouterFilter`执行，交给`AsyncHttpHelper`.executeRequest。该方法是AsyncHttpClient提供的异步执行请求的方法；
+
+#### AsyncHttpHelper
+
+#### Container
 
 #### DynamicConfigManager
 
+> 一个用来存放服务定义，服务实例，路径及规则的本地缓存，请求最后都会在该缓存将`服务ID`替换为真实服务地址+ip,减少每次请求都去注册中心拉取请求，造成注册中心的负载压力；注册中心和配置中心都有监听器接口，要求实现该监听器功能完成配置变化/服务变化时能更新`DynamicConfigManager`缓存，尽可能保证可用性；
+>
+> **属性介绍：**
+>
+> ```java
+> //服务的定义集合：uniqueId代表服务的唯一标识
+> private final ConcurrentHashMap<String /* uniqueId */ , ServiceDefinition> serviceDefinitionMap = new ConcurrentHashMap<>();
 > 
+> //服务的实例集合：uniqueId与一堆服务实例对应
+> private final ConcurrentHashMap<String /* uniqueId */ , Set<ServiceInstance>> serviceInstanceMap = new ConcurrentHashMap<>();
+> 
+> //规则集合
+> private ConcurrentHashMap<String /* ruleId */ , Rule> ruleMap = new ConcurrentHashMap<>();
+> 
+> //路径以及规则集合
+> private ConcurrentHashMap<String/*路径 */, Rule> pathRuleMap = new ConcurrentHashMap<>();
+> private ConcurrentHashMap<String/*服务名*/, List<Rule>> serviceRuleMap = new ConcurrentHashMap<>();
+> ```
 
-##### 属性介绍：
+#### RequestHelper
 
-```java
-//服务的定义集合：uniqueId代表服务的唯一标识
-private final ConcurrentHashMap<String /* uniqueId */ , ServiceDefinition> serviceDefinitionMap = new ConcurrentHashMap<>();
+http://192.168.126.3:8083/http-server/ping	GET	headers:	uniqueId:backend-http-server:1.0.0	Cache-Control:no-cache	Postman-Token:e478e021-cd56-49e9-88c1-eeff6117469f	content-length:0
 
-//服务的实例集合：uniqueId与一堆服务实例对应
-private final ConcurrentHashMap<String /* uniqueId */ , Set<ServiceInstance>> serviceInstanceMap = new ConcurrentHashMap<>();
-
-//规则集合
-private ConcurrentHashMap<String /* ruleId */ , Rule> ruleMap = new ConcurrentHashMap<>();
-
-//路径以及规则集合
-private ConcurrentHashMap<String/*路径 */, Rule> pathRuleMap = new ConcurrentHashMap<>();
-private ConcurrentHashMap<String/*服务名*/, List<Rule>> serviceRuleMap = new ConcurrentHashMap<>();
-```
+#### 
 
