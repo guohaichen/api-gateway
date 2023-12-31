@@ -26,10 +26,55 @@
 
 1. <font color=red>入站处理器 `NettyServerHttpInboundHandler` 中 channelRead 将对消息进行封装为HttpRequestWrapper，交由 `NettyProcessor`.process 处理;</font>
 
-2. `RequestHelper`.doContext 主要是构建网关核心上下文 gatewayContext，随后在`服务注册中心`根据消息的 ==uniqueId== 获取对应的服务实例；
+2. `RequestHelper`.doContext 主要是构建网关核心上下文 gatewayContext，随后在`服务注册中心`根据消息的 **uniqueId** 获取对应的服务实例；
 
-3. `filterFactory`.buildFilterChain 构建过滤器链（这里根据配置中心的配置构建了过滤器链，比如负载均衡，路由过滤器等以及用户自定义的过滤器链，只要加了`FilterAspect`注解的都可以，利用了Java SPI 机制扫描了所有的Filter）； ==executeFilter==中遍历各个 `Filter`，执行 filter 的逻辑；以轮询过滤器举例，从 gatewayContext 中获取服务名，将 gatewayContext 中的请求中的 ip 和 port 替换为服务实例具体的 ip 和 port ；
+3. `filterFactory`.buildFilterChain 构建过滤器链（这里根据配置中心的配置构建了过滤器链，比如负载均衡，路由过滤器等以及用户自定义的过滤器链，只要加了`FilterAspect`注解的都可以，利用了Java SPI 机制扫描了所有的Filter）； **executeFilter** 中遍历各个 `Filter`，执行 filter 的逻辑；以轮询过滤器举例，从 gatewayContext 中获取服务名，将 gatewayContext 中的请求中的 ip 和 port 替换为服务实例具体的 ip 和 port ；
 4. 最后的过滤器会执行到`RouterFilter`;
+
+#### HttpServerCodec
+
+> Netty中专门用于处理 Http 协议的编码和解码器，包含了`HttpRequestDecoder`和`HttpResponseEncoder`两个组件，分别用于**解码客户端发送的 Http 请求 和编码服务端发送的 Http 响应；**
+
+- HttpRequestDeocder 将字节解码为 HttpRequest、HttpContent 和 LastHttpContent 消息；
+- HttpResponseEncoder 将 HttpResponse、HttpContent 和 LastHttpContent 消息编码为字节；
+
+###### HTTP 请求的组成部分
+
+```mermaid
+graph TB;
+subgraph FullHttpRequest
+HttpRequest-->HttpContent1-->HttpContent2-->LastHttpContent
+end
+```
+
+- HttpRequest 请求的第一个响应，包含请求头部信息；
+- HttpContent 包含数据，后面可能还跟着多个 HttpContent 部分；
+- LastHttpContent 标记了该 Http请求的结束，可能还包含了尾随的 Http 头部信息；
+
+###### Http 响应的组成部分
+
+```mermaid
+graph TB;
+subgraph FullHttpResponse
+HttpResponse-->HttpContent1-->HttpContent2-->LastHttpContent
+end
+```
+
+- HttpResponse 相应的第一个部分，包含了 Http 的头部信息；
+- HttpContent 包含数据，后面可能还跟着多个 HttpContent 部分；
+- LastHttpContent 标记了该 Http 响应的结束，可能还包含了尾随的 Http 头部信息；
+
+> 总结：一个 Http 请求/响应可能由多个数据部分组成，并且它总是以一个 LastHttpContent 部分作为结束。FullHttpRequest 和 FullHttpResponse 分别代表了完整的请求和消息。
+
+#### HttpObjectAggregator 聚合消息
+
+> 在处理 HTTP 请求和响应时，数据通常以多个部分（例如 HTTP 头部、消息体等）的形式传输，而 `HttpObjectAggregator` 的作用就是将这些部分聚合成一个完整的 `FullHttpRequest` 或 `FullHttpResponse` 对象。
+>
+> 当客户端或服务端发送的 HTTP 消息体较大时，可能会被切分成多个 `HttpContent` 对象。`HttpObjectAggregator` 负责将这些部分**聚合成一个完整的 `FullHttpRequest` 或 `FullHttpResponse` 对象。**
+
+#### NettyServerHttpInboundHandler
+
+> 消息入站处理器，将消息交给 `NettyProcessor` 处理；
 
 ### 核心接口
 
@@ -64,11 +109,9 @@
 > - `NettyServerHttpInboundHandler`中会将消息交给 `NettyProcessor`处理；
 > - `RequestHelper`.doContext 构建网关上下文`gatewayContext`；
 > - 过滤器工厂`FilterFactory`中的过滤器对 `gatewayContext`执行各个过滤器的逻辑，例如负载均衡等；
-> - 最后是`RouterFilter`执行，交给`AsyncHttpHelper`.executeRequest。该方法是AsyncHttpClient提供的异步执行请求的方法；
+> - 最后是`RouterFilter`执行，交给`AsyncHttpHelper`.executeRequest。该方法是 AsyncHttpClient 提供的异步执行请求的方法；
 
 #### AsyncHttpHelper
-
-#### Container
 
 #### DynamicConfigManager
 
