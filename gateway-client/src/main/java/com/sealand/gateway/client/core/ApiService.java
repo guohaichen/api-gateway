@@ -1,5 +1,6 @@
 package com.sealand.gateway.client.core;
 
+import com.sealand.gateway.client.core.config.ApiProtocol;
 import java.lang.annotation.*;
 
 /**

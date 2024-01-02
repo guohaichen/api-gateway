@@ -1,4 +1,4 @@
-package com.sealand.gateway.client.core;
+package com.sealand.gateway.client.core.config;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

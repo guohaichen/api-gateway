@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
-import com.sealand.gateway.client.core.ApiProperties;
+import com.sealand.gateway.client.core.config.ApiProperties;
 
 import java.util.ServiceLoader;
 

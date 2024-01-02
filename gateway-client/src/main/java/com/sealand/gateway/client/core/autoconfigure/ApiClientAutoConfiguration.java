@@ -1,7 +1,7 @@
 package com.sealand.gateway.client.core.autoconfigure;
 
 import org.apache.dubbo.config.spring.ServiceBean;
-import com.sealand.gateway.client.core.ApiProperties;
+import com.sealand.gateway.client.core.config.ApiProperties;
 import com.sealand.gateway.client.support.dubbo.DubboClientRegisterManager;
 import com.sealand.gateway.client.support.springMVC.SpringMvcClientRegisterManager;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
 package com.sealand.gateway.client.core;
 
+import com.sealand.gateway.client.core.config.ApiProtocol;
 import com.sealand.gateway.client.support.dubbo.DubboConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.ProviderConfig;
