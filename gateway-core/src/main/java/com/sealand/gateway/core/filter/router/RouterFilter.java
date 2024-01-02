@@ -37,9 +37,9 @@ public class RouterFilter implements Filter {
         Request request = gatewayContext.getRequest().build();
         CompletableFuture<Response> future = AsyncHttpHelper.getInstance().executeRequest(request);
 
-        boolean whenComplete = ConfigLoader.getConfig().isWhenComplete();
+        boolean singleAsync = ConfigLoader.getConfig().isSingleAsync();
 
-        if (whenComplete) {
+        if (singleAsync) {
             future.whenComplete((response, throwable) -> {
                 complete(request, response, throwable, gatewayContext);
             });
