@@ -1,0 +1,18 @@
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: 20886
+  registry:
+    address: zookeeper://127.0.0.1:2181
+
+api:
+  env: dev
+  registerAddress: 127.0.0.1:2181
+  registerType: zookeeper
+spring:
+  main:
+    allow-bean-definition-overriding: true
+server:
+  port: -1
