@@ -1,7 +1,8 @@
 package com.sealand.gateway.client.core;
 
+import com.sealand.gateway.client.core.annotion.ApiInvoker;
+import com.sealand.gateway.client.core.annotion.ApiService;
 import com.sealand.gateway.client.core.config.ApiProtocol;
-import com.sealand.gateway.client.support.dubbo.DubboConstants;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.ProviderConfig;
 import org.apache.dubbo.config.spring.ServiceBean;
@@ -18,6 +19,8 @@ import java.util.Map;
  * 注解扫描类
  */
 public class ApiAnnotationScanner {
+
+    int DUBBO_TIMEOUT = 5000;
 
     private ApiAnnotationScanner() {
     }
@@ -135,7 +138,7 @@ public class ApiAnnotationScanner {
             if (providerConfig != null) {
                 Integer providerTimeout = providerConfig.getTimeout();
                 if (providerTimeout == null || providerTimeout.intValue() == 0) {
-                    serviceTimeout = DubboConstants.DUBBO_TIMEOUT;
+                    serviceTimeout = DUBBO_TIMEOUT;
                 } else {
                     serviceTimeout = providerTimeout;
                 }
