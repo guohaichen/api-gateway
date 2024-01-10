@@ -1,16 +1,20 @@
 package com.sealand.gateway.client.core.autoconfigure;
 
+import com.sealand.gateway.client.support.springMVC.SpringMvcClientRegisterManager;
+import org.apache.dubbo.config.annotation.Service;
 import org.apache.dubbo.config.spring.ServiceBean;
 import com.sealand.gateway.client.core.config.ApiProperties;
 import com.sealand.gateway.client.support.dubbo.DubboClientRegisterManager;
-import com.sealand.gateway.client.support.springMVC.SpringMvcClientRegisterManager;
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -31,21 +35,21 @@ import javax.servlet.Servlet;
  */
 @Configuration
 @EnableConfigurationProperties(ApiProperties.class)
-@ConditionalOnProperty(prefix = "api", name = "{registerAddress}")
+@ConditionalOnProperty(prefix = "api", name = "register-address")
 public class ApiClientAutoConfiguration {
 
     @Autowired
     private ApiProperties apiProperties;
 
     @Bean
-    @ConditionalOnClass({Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class})
+    @ConditionalOnProperty(name = "api.type", havingValue = "mvc")
     @ConditionalOnMissingBean(SpringMvcClientRegisterManager.class)
     public SpringMvcClientRegisterManager springMvcClientRegisterManager() {
         return new SpringMvcClientRegisterManager(apiProperties);
     }
 
     @Bean
-    @ConditionalOnClass({ServiceBean.class})
+    @ConditionalOnProperty(name = "api.type", havingValue = "dubbo")
     @ConditionalOnMissingBean(DubboClientRegisterManager.class)
     public DubboClientRegisterManager dubboClientRegisterManager() {
         return new DubboClientRegisterManager(apiProperties);

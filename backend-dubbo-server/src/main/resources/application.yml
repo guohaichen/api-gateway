@@ -9,10 +9,9 @@ dubbo:
 
 api:
   env: dev
-  registerAddress: 127.0.0.1:2181
+  register-address: 127.0.0.1:2181
   registerType: zookeeper
+  type: dubbo
 spring:
   main:
     allow-bean-definition-overriding: true
-server:
-  port: -1
