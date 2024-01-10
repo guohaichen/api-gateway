@@ -1,4 +1,4 @@
-package com.sealand.gateway.client.core;
+package com.sealand.gateway.client.core.annotion;
 
 import java.lang.annotation.*;
 

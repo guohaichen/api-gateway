@@ -1,9 +1,9 @@
 package com.sealand.backend.http.server.controller;
 
-import com.sealand.gateway.client.core.ApiInvoker;
+import com.sealand.gateway.client.core.annotion.ApiInvoker;
 import com.sealand.gateway.client.core.config.ApiProperties;
 import com.sealand.gateway.client.core.config.ApiProtocol;
-import com.sealand.gateway.client.core.ApiService;
+import com.sealand.gateway.client.core.annotion.ApiService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
