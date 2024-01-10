@@ -35,7 +35,6 @@ import static com.sealand.common.constants.GatewayConst.DEFAULT_WEIGHT;
  * @desc 将 springMVC 所有接口请求进行注册中心 注册
  */
 @Slf4j
-@Component
 public class SpringMvcClientRegisterManager extends AbstractClientRegisterManager implements ApplicationListener<ApplicationEvent>, ApplicationContextAware {
 
     private ApplicationContext applicationContext;
@@ -61,10 +60,10 @@ public class SpringMvcClientRegisterManager extends AbstractClientRegisterManage
             try {
                 RegisterSpringMvc();
             } catch (Exception e) {
-                log.info("MVC register error : {}", e.getMessage());
+                log.info("http register error : {}", e.getMessage());
                 throw new RuntimeException(e);
             }
-            log.info("springMVC api startedEvent begin;");
+            log.info("http api started");
         }
     }
 

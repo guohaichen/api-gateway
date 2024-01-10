@@ -18,4 +18,8 @@ public class ApiProperties {
     private String env = "dev";
 
     private String registerType;
+    /**
+     * 请求方式，dubbo/mvc
+     */
+    private String type;
 }
