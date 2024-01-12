@@ -33,4 +33,23 @@ public interface FilterConst {
 
     String FLOW_CTL_TYPE_SERVICE = "service";
 
+    /**
+     * 以秒为单位限流
+     */
+    String FLOW_CTL_LIMIT_DURATION = "duration";
+    /**
+     * 允许请求的次数
+     */
+    String FLOW_CTL_LIMIT_PERMITS = "permits";
+
+
+    /**
+     * 分布式限流规则
+     */
+    String FLOW_CTL_MODEL_DISTRIBUTED = "distributed_flowCtl";
+    /**
+     * 单机限流规则
+     */
+    String FLOW_CTL_MODEL_SINGLETON = "singleton_flowCtl";
+
 }
