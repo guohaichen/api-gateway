@@ -33,7 +33,7 @@ public class FlowCtlFilter implements Filter {
                 if (flowCtlConfig.getType().equalsIgnoreCase(FLOW_CTL_TYPE_PATH) && path.equals(flowCtlConfig.getValue())) {
                     flowCtlRule = FlowCtlRuleByPath.getInstance(rule.getServiceId(), path);
                 } else if (flowCtlConfig.getType().equalsIgnoreCase(FLOW_CTL_TYPE_SERVICE)) {
-
+                    //todo 通过服务限流
                 }
                 if (flowCtlRule != null) {
                     flowCtlRule.doFlowCtlFilter(flowCtlConfig, rule.getServiceId());
