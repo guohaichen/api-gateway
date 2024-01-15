@@ -1,7 +1,7 @@
 package com.sealand.gateway.core.config;
 
-import lombok.extern.slf4j.Slf4j;
 import com.sealand.common.utils.PropertiesUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.InputStream;

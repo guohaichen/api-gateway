@@ -1,23 +1,21 @@
 package com.sealand.gateway.core;
 
 import com.alibaba.fastjson.JSON;
-import com.sealand.gateway.core.center.ConfigAndRegisterCenterFactory;
-import com.sealand.gateway.core.config.Config;
-import com.sealand.gateway.core.config.ConfigLoader;
-import com.sealand.gateway.core.netty.Container;
-import lombok.extern.slf4j.Slf4j;
 import com.sealand.common.config.DynamicConfigManager;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.common.utils.NetUtils;
 import com.sealand.common.utils.TimeUtil;
 import com.sealand.gateway.config.center.api.ConfigCenter;
+import com.sealand.gateway.core.center.ConfigAndRegisterCenterFactory;
+import com.sealand.gateway.core.config.Config;
+import com.sealand.gateway.core.config.ConfigLoader;
+import com.sealand.gateway.core.netty.Container;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenterListener;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ServiceLoader;
 import java.util.Set;
 
 import static com.sealand.common.constants.BasicConst.COLON_SEPARATOR;

@@ -14,12 +14,12 @@ import com.alibaba.nacos.api.naming.pojo.Service;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.common.executor.NameThreadFactory;
 import com.alibaba.nacos.common.utils.CollectionUtils;
-import lombok.extern.slf4j.Slf4j;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.common.constants.GatewayConst;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenterListener;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

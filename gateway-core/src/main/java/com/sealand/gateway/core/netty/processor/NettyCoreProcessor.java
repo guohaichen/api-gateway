@@ -1,30 +1,19 @@
 package com.sealand.gateway.core.netty.processor;
 
+import com.sealand.common.enums.ResponseCode;
+import com.sealand.common.exception.BaseException;
 import com.sealand.gateway.core.context.GatewayContext;
 import com.sealand.gateway.core.context.HttpRequestWrapper;
 import com.sealand.gateway.core.filter.FilterFactory;
 import com.sealand.gateway.core.filter.GatewayFilterChainFactory;
-import com.sealand.gateway.core.response.GatewayResponse;
+import com.sealand.gateway.core.helper.RequestHelper;
+import com.sealand.gateway.core.helper.ResponseHelper;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.asynchttpclient.Request;
-import org.asynchttpclient.Response;
-import com.sealand.common.enums.ResponseCode;
-import com.sealand.common.exception.BaseException;
-import com.sealand.common.exception.ConnectException;
-import com.sealand.common.exception.ResponseException;
-import com.sealand.gateway.core.config.ConfigLoader;
-import com.sealand.gateway.core.helper.AsyncHttpHelper;
-import com.sealand.gateway.core.helper.RequestHelper;
-import com.sealand.gateway.core.helper.ResponseHelper;
-
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeoutException;
 
 /**
  * 处理基于netty服务器中的http请求

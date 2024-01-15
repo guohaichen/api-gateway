@@ -1,13 +1,13 @@
 package com.sealand.gateway.client.support.springMVC;
 
-import com.sealand.common.utils.TimeUtil;
-import com.sealand.gateway.client.support.AbstractClientRegisterManager;
-import lombok.extern.slf4j.Slf4j;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.common.utils.NetUtils;
+import com.sealand.common.utils.TimeUtil;
 import com.sealand.gateway.client.core.ApiAnnotationScanner;
 import com.sealand.gateway.client.core.config.ApiProperties;
+import com.sealand.gateway.client.support.AbstractClientRegisterManager;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;

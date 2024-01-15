@@ -1,7 +1,7 @@
 package com.sealand.gateway.core.context;
 
-import io.netty.channel.ChannelHandlerContext;
 import com.sealand.common.config.Rule;
+import io.netty.channel.ChannelHandlerContext;
 
 import java.util.ArrayList;
 import java.util.HashMap;

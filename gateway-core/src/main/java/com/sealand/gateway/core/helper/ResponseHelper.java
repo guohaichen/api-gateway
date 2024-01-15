@@ -1,13 +1,13 @@
 package com.sealand.gateway.core.helper;
 
+import com.sealand.common.constants.BasicConst;
+import com.sealand.common.enums.ResponseCode;
 import com.sealand.gateway.core.context.IContext;
 import com.sealand.gateway.core.response.GatewayResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.handler.codec.http.*;
-import com.sealand.common.constants.BasicConst;
-import com.sealand.common.enums.ResponseCode;
 
 import java.util.Objects;
 

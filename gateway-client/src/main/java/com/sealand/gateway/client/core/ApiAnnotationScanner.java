@@ -1,15 +1,15 @@
 package com.sealand.gateway.client.core;
 
+import com.sealand.common.config.HttpServiceInvoker;
+import com.sealand.common.config.ServiceDefinition;
+import com.sealand.common.config.ServiceInvoker;
+import com.sealand.common.constants.BasicConst;
 import com.sealand.gateway.client.core.annotion.ApiInvoker;
 import com.sealand.gateway.client.core.annotion.ApiService;
 import com.sealand.gateway.client.core.config.ApiProtocol;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.ProviderConfig;
 import org.apache.dubbo.config.spring.ServiceBean;
-import com.sealand.common.config.HttpServiceInvoker;
-import com.sealand.common.config.ServiceDefinition;
-import com.sealand.common.config.ServiceInvoker;
-import com.sealand.common.constants.BasicConst;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

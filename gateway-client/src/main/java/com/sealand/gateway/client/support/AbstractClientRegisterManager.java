@@ -1,13 +1,13 @@
 package com.sealand.gateway.client.support;
 
+import com.sealand.common.config.ServiceDefinition;
+import com.sealand.common.config.ServiceInstance;
+import com.sealand.gateway.client.core.config.ApiProperties;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.nacos.NacosRegisterCenter;
 import com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCenter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import com.sealand.common.config.ServiceDefinition;
-import com.sealand.common.config.ServiceInstance;
-import com.sealand.gateway.client.core.config.ApiProperties;
 
 import java.util.ServiceLoader;
 

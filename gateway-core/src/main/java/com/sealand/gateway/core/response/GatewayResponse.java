@@ -1,11 +1,11 @@
 package com.sealand.gateway.core.response;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.sealand.common.enums.ResponseCode;
+import com.sealand.common.utils.JSONUtil;
 import io.netty.handler.codec.http.*;
 import lombok.Data;
 import org.asynchttpclient.Response;
-import com.sealand.common.enums.ResponseCode;
-import com.sealand.common.utils.JSONUtil;
 
 @Data
 public class GatewayResponse {

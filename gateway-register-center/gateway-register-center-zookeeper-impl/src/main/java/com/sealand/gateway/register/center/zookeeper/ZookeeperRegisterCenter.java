@@ -1,7 +1,6 @@
 package com.sealand.gateway.register.center.zookeeper;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.common.constants.BasicConst;
@@ -10,10 +9,9 @@ import com.sealand.gateway.register.center.api.RegisterCenterListener;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
-import org.apache.curator.framework.recipes.cache.*;
+import org.apache.curator.framework.recipes.cache.TreeCache;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
 import java.util.HashSet;

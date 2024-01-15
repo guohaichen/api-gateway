@@ -1,7 +1,9 @@
 package com.sealand.gateway.core.netty;
 
+import com.sealand.common.utils.RemotingUtil;
 import com.sealand.gateway.core.config.Config;
 import com.sealand.gateway.core.netty.handler.NettyServerConnectManagerHandler;
+import com.sealand.gateway.core.netty.handler.NettyServerHttpInboundHandler;
 import com.sealand.gateway.core.netty.processor.NettyProcessor;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -17,8 +19,6 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import com.sealand.common.utils.RemotingUtil;
-import com.sealand.gateway.core.netty.handler.NettyServerHttpInboundHandler;
 
 import java.net.InetSocketAddress;
 

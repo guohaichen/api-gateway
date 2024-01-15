@@ -1,11 +1,10 @@
 package com.sealand.backend.dubbo.server.consumer;
 
 import com.sealand.backend.dubbo.server.service.BackendDubboService;
-import com.sealand.backend.dubbo.server.service.impl.BackendDubboServiceImpl;
 import org.apache.dubbo.config.annotation.Reference;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * @author cgh

@@ -1,12 +1,11 @@
 package com.sealand.gateway.core.context;
 
-import io.netty.channel.ChannelHandlerContext;
-
-import io.netty.util.ReferenceCountUtil;
 import com.sealand.common.config.Rule;
 import com.sealand.common.utils.AssertUtil;
 import com.sealand.gateway.core.request.GatewayRequest;
 import com.sealand.gateway.core.response.GatewayResponse;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.ReferenceCountUtil;
 
 /**
  * 网关上下文，包含请求，响应以及规则

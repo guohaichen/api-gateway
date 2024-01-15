@@ -5,10 +5,10 @@ import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.config.ConfigService;
 import com.alibaba.nacos.api.config.listener.Listener;
 import com.alibaba.nacos.api.exception.NacosException;
-import lombok.extern.slf4j.Slf4j;
 import com.sealand.common.config.Rule;
 import com.sealand.gateway.config.center.api.ConfigCenter;
 import com.sealand.gateway.config.center.api.RulesChangeListener;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 import java.util.concurrent.Executor;

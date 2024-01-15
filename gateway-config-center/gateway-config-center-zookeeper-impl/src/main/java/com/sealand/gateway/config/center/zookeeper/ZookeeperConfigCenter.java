@@ -12,7 +12,6 @@ import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static com.sealand.gateway.config.center.zookeeper.ZookeeperConfigConstants.Config_CENTER_ZOOKEEPER_PREFIX;
