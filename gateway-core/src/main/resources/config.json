@@ -1,5 +1,6 @@
 {
-  "rules": [{
+  "rules": [
+    {
       "id": "001",
       "name": "1号规则",
       "protocol": "http",
@@ -9,11 +10,28 @@
         "/http-server/ping",
         "/http-server/test"
       ],
-      "filterConfigs": [{
+      "filterConfigs": [
+        {
           "id": "load_balance_filter",
           "config": {
             "load_balance": "RoundRobin"
           }
-        }]
-    }]
+        },
+        {
+          "id": "flow_ctl_filter"
+        }
+      ],
+      "flowCtlConfigs": [
+        {
+          "type": "path",
+          "model": "distributed_flowCtl",
+          "value": "/http-server/ping",
+          "config": {
+            "duration": 20,
+            "permits": 2
+          }
+        }
+      ]
+    }
+  ]
 }

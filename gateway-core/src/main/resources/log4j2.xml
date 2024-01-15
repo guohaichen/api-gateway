@@ -40,6 +40,8 @@
 	    </Logger>
 <!--        关闭zookeeper心跳日志-->
         <logger name="org.apache.zookeeper.ClientCnxn" level="info" />
+        <!--关闭org.asynchttpclient.netty.channel.DefaultChannelPool-->
+        <logger name="org.asynchttpclient.netty.channel.DefaultChannelPool" level="info" />
         <Root level="debug">
             <Appender-Ref ref="CONSOLE"/>
             <!--  
