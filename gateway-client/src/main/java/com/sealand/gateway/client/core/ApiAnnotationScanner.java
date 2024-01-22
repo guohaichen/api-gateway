@@ -1,5 +1,6 @@
 package com.sealand.gateway.client.core;
 
+import com.sealand.common.config.DubboServiceInvoker;
 import com.sealand.common.config.HttpServiceInvoker;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInvoker;
@@ -16,7 +17,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 注解扫描类
+ * 注解扫描
+ * 扫描有ApiService、ApiInvoker服务接口
+ * 根据不同的ApiService，例如dubbo、http创建 方法调用 k:path v:服务
  */
 public class ApiAnnotationScanner {
 
@@ -111,7 +114,11 @@ public class ApiAnnotationScanner {
     }
 
     /**
-     * 构建DubboServiceInvoker对象
+     * 构建dubbo<b>泛化调用</b>对象
+     * @param path 请求路径，后续请求网关通过path找到对应dubbo 服务提供者
+     * @param serviceBean dubbo serviceBean 服务
+     * @param method 方法
+     * @return
      */
     private DubboServiceInvoker createDubboServiceInvoker(String path, ServiceBean<?> serviceBean, Method method) {
         DubboServiceInvoker dubboServiceInvoker = new DubboServiceInvoker();
@@ -122,6 +129,7 @@ public class ApiAnnotationScanner {
         String interfaceClass = serviceBean.getInterface();
 
         dubboServiceInvoker.setRegisterAddress(registerAddress);
+        //dubbo泛化调用重点：方法名，类全路径名，方法参数类型；
         dubboServiceInvoker.setMethodName(methodName);
         dubboServiceInvoker.setInterfaceClass(interfaceClass);
 
@@ -133,22 +141,22 @@ public class ApiAnnotationScanner {
         dubboServiceInvoker.setParameterTypes(parameterTypes);
 
         Integer serviceTimeout = serviceBean.getTimeout();
-        if (serviceTimeout == null || serviceTimeout.intValue() == 0) {
+        if (serviceTimeout == null || serviceTimeout == 0) {
             ProviderConfig providerConfig = serviceBean.getProvider();
             if (providerConfig != null) {
                 Integer providerTimeout = providerConfig.getTimeout();
-                if (providerTimeout == null || providerTimeout.intValue() == 0) {
+                if (providerTimeout == null || providerTimeout == 0) {
                     serviceTimeout = DUBBO_TIMEOUT;
                 } else {
                     serviceTimeout = providerTimeout;
                 }
+            } else {
+                serviceTimeout = DUBBO_TIMEOUT;
             }
         }
         dubboServiceInvoker.setTimeout(serviceTimeout);
-
         String dubboVersion = serviceBean.getVersion();
         dubboServiceInvoker.setVersion(dubboVersion);
-
         return dubboServiceInvoker;
     }
 
