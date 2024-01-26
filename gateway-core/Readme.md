@@ -90,6 +90,10 @@ end
 >
 > NettyHttpServer
 
+##### Filter
+
+> 定义过滤器接口，定义`doFilter`执行过滤器逻辑和`order`执行顺序；
+
 ### 核心类
 
 #### NettyHttpClient
@@ -138,5 +142,6 @@ end
 
 http://192.168.126.3:8083/http-server/ping	GET	headers:	uniqueId:backend-http-server:1.0.0	Cache-Control:no-cache	Postman-Token:e478e021-cd56-49e9-88c1-eeff6117469f	content-length:0
 
-#### 
+#### GatewayFilterChainFactory
 
+> 过滤器工厂，使用 Java`SPI`机制加载过滤器，遍历该过滤器，讲过滤器的 **id** 作为key，该过滤器为value，存放在map中。后续会根据 **配置**中的过滤器 id，从 map 中获取过滤器，添加至 `GatewayFilterChain`，构建成过滤器链；
