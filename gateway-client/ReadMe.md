@@ -63,7 +63,10 @@
 
 #### `ApiAnnotationScanner`
 
-> ApiService 和 ApiInvoker 的功能实现类；主要扫描加了这两个接口的类、接口和方法；获得注解参数，构建 `ServiceDefinition`并返回;
+> ApiService 和 ApiInvoker 的功能实现类；主要扫描加了这两个注解的类、接口和方法；获得注解其中的参数，构建 `ServiceDefinition`并返回;
+>
+> 1. 如果`ApiInvoker.protocol`是 Http，则构建 `HttpServiceInvoker,`
+> 2. 如果`ApiInvoker.protocol`是 Dubbo，则构建 `DubboServiceInvoker`, `DubboServiceInvoker`构建`ServiceDefinition`比 http 复杂一点，http 请求 访问 dubbo 用到了 **泛化调用**，保存了类全路径名，方法名，参数类型等；
 
 #### `ApiClientAutoConfiguration`
 
