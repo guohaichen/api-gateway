@@ -1,8 +1,8 @@
 {
   "rules": [
     {
-      "id": "001",
-      "name": "1号规则",
+      "id": "http_1.0.0",
+      "name": "http_1.0.0",
       "protocol": "http",
       "serviceId": "backend-http-server",
       "prefix": "/user",
@@ -29,6 +29,25 @@
           "config": {
             "duration": 20,
             "permits": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "dubbo_1.0.0",
+      "name": "dubbo_1.0.0",
+      "protocol": "dubbo",
+      "serviceId": "backend-dubbo-server",
+      "prefix": "/dubbo",
+      "paths": [
+        "/dubbo-server/ping",
+        "/dubbo-server/list"
+      ],
+      "filterConfigs": [
+        {
+          "id": "load_balance_filter",
+          "config": {
+            "load_balance": "RoundRobin"
           }
         }
       ]
