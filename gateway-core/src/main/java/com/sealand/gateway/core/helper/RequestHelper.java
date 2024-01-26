@@ -1,11 +1,14 @@
 package com.sealand.gateway.core.helper;
 
+import com.jayway.jsonpath.JsonPath;
 import com.sealand.common.config.*;
 import com.sealand.common.constants.BasicConst;
 import com.sealand.common.constants.GatewayConst;
 import com.sealand.common.exception.ResponseException;
+import com.sealand.common.utils.JSONUtil;
 import com.sealand.gateway.core.context.GatewayContext;
 import com.sealand.gateway.core.request.GatewayRequest;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +19,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import static com.sealand.common.constants.BasicConst.COLON_SEPARATOR;
 import static com.sealand.common.enums.ResponseCode.PATH_NO_MATCHED;
 
 /**
@@ -32,7 +37,13 @@ public class RequestHelper {
 
         //	根据请求对象里的uniqueId，获取资源服务信息(也就是服务定义信息)
         ServiceDefinition serviceDefinition = DynamicConfigManager.getInstance().getServiceDefinition(gateWayRequest.getUniqueId());
-
+//        if ("dubbo".equals(serviceDefinition.getProtocol())){
+//            String uri = gateWayRequest.getUri();
+//            Map map = JSONUtil.parse(uri, Map.class);
+//            if (map.get("serviceName")!=null&&map.get("methodName")!=null&&map.get("parameterTypes")!=null){
+//                gateWayRequest.setModifyPath("/dubbo/generic?");
+//            }
+//        }
 
         //	根据请求对象获取服务定义对应的方法调用，然后获取对应的规则
         ServiceInvoker serviceInvoker = new HttpServiceInvoker();
@@ -73,7 +84,14 @@ public class RequestHelper {
         String clientIp = getClientIp(ctx, fullHttpRequest);
         String contentType = HttpUtil.getMimeType(fullHttpRequest) == null ? null : HttpUtil.getMimeType(fullHttpRequest).toString();
         Charset charset = HttpUtil.getCharset(fullHttpRequest, StandardCharsets.UTF_8);
-
+        /*---------------------post请求 添加body------start-------*/
+        String body = null;
+        if (HttpMethod.POST.equals(fullHttpRequest.method())) {
+            if (fullHttpRequest.content().isReadable()) {
+                ByteBuf content = fullHttpRequest.content();
+                body = content.toString(StandardCharsets.UTF_8);
+            }
+        }
         GatewayRequest gatewayRequest = new GatewayRequest(uniqueId,
                 charset,
                 clientIp,
@@ -83,7 +101,10 @@ public class RequestHelper {
                 contentType,
                 headers,
                 fullHttpRequest);
-
+        /*---------------------post请求 添加body------- end------*/
+        if (body != null) {
+            gatewayRequest.setBody(body);
+        }
         return gatewayRequest;
     }
 
@@ -115,7 +136,7 @@ public class RequestHelper {
      * @return
      */
     private static Rule getRule(GatewayRequest gateWayRequest, String serviceId) {
-        String key = serviceId + "." + gateWayRequest.getPath();
+        String key = serviceId + COLON_SEPARATOR + gateWayRequest.getPath();
         Rule rule = DynamicConfigManager.getInstance().getRuleByPath(key);
 
         if (rule != null) {
