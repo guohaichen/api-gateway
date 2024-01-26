@@ -7,6 +7,8 @@ import com.sealand.gateway.client.core.config.ApiProtocol;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -22,5 +24,18 @@ public class PingController {
     public String ping() {
         log.info("apiProperties: {}", apiProperties);
         return "pong";
+    }
+
+    @ApiInvoker(path = "/http-server/post")
+    @PostMapping("/http-server/post")
+    public String postTest(@RequestBody Message message) {
+        String result = message.name + ":" + message.age;
+        return result;
+    }
+
+
+    static class Message {
+        private String name;
+        private String age;
     }
 }
