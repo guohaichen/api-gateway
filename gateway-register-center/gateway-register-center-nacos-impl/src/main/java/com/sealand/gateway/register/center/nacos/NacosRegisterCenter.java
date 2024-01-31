@@ -1,6 +1,8 @@
 package com.sealand.gateway.register.center.nacos;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
+import com.alibaba.fastjson.parser.ParserConfig;
 import com.alibaba.nacos.api.NacosFactory;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingMaintainFactory;
@@ -14,9 +16,12 @@ import com.alibaba.nacos.api.naming.pojo.Service;
 import com.alibaba.nacos.api.naming.pojo.ServiceInfo;
 import com.alibaba.nacos.common.executor.NameThreadFactory;
 import com.alibaba.nacos.common.utils.CollectionUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.common.constants.GatewayConst;
+import com.sealand.common.utils.JSONUtil;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenterListener;
 import lombok.extern.slf4j.Slf4j;
@@ -127,7 +132,7 @@ import java.util.stream.Collectors;
         try {
             //已订阅的服务
             Set<String> subscribeService = namingService.getSubscribeServices().stream().map(ServiceInfo::getName).collect(Collectors.toSet());
-            log.info("nacos已订阅的服务:{}",Arrays.toString(subscribeService.toArray()));
+            log.info("nacos已订阅的服务:{}", Arrays.toString(subscribeService.toArray()));
             int pageNo = 1;
             int pageSize = 100;
 

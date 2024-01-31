@@ -1,3 +1,4 @@
 com.sealand.gateway.core.filter.loadbalance.LoadBalanceFilter
 com.sealand.gateway.core.filter.router.RouterFilter
 com.sealand.gateway.core.filter.flowCtl.FlowCtlFilter
+com.sealand.gateway.core.filter.dubbo.DubboGenericFilter

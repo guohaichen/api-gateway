@@ -1,5 +1,6 @@
 package com.sealand.gateway.client.support.dubbo;
 
+import com.alibaba.fastjson.JSON;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.common.utils.NetUtils;
@@ -73,6 +74,7 @@ public class DubboClientRegisterManager extends AbstractClientRegisterManager im
         serviceInstance.setRegisterTime(TimeUtil.currentTimeMillis());
         serviceInstance.setVersion(version);
         serviceInstance.setWeight(DEFAULT_WEIGHT);
+        log.info("service definition register:{}", JSON.toJSONString(serviceDefinition));
         register(serviceDefinition, serviceInstance);
     }
 }

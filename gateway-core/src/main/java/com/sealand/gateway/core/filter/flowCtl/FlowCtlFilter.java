@@ -4,6 +4,7 @@ import com.sealand.common.config.Rule;
 import com.sealand.gateway.core.context.GatewayContext;
 import com.sealand.gateway.core.filter.Filter;
 import com.sealand.gateway.core.filter.FilterAspect;
+
 import java.util.Iterator;
 import java.util.Set;
 
@@ -31,6 +32,7 @@ public class FlowCtlFilter implements Filter {
                 }
                 String path = gatewayContext.getRequest().getPath();
                 if (flowCtlConfig.getType().equalsIgnoreCase(FLOW_CTL_TYPE_PATH) && path.equals(flowCtlConfig.getValue())) {
+                    //通过http路径限流
                     flowCtlRule = FlowCtlRuleByPath.getInstance(rule.getServiceId(), path);
                 } else if (flowCtlConfig.getType().equalsIgnoreCase(FLOW_CTL_TYPE_SERVICE)) {
                     //todo 通过服务限流

@@ -15,7 +15,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Slf4j
 public class JedisPoolUtil {
-    public static JedisPoolUtil jedisPoolInit = null;
     private String host;
     private int port;
     private int maxActive;
@@ -62,6 +61,7 @@ public class JedisPoolUtil {
                 config.setMinIdle(minIdle);
                 config.setMaxWaitMillis(maxWaitMillis);
                 jedisPool = new JedisPool(config, host, port);
+                log.info("redis init ...");
             } catch (Exception e) {
                 log.debug("init redis pool failed : {}", e.getMessage());
             } finally {

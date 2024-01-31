@@ -23,6 +23,10 @@ public interface FilterConst {
     String ROUTER_FILTER_NAME = "router_filter";
     int ROUTER_FILTER_ORDER = Integer.MAX_VALUE;
 
+    String DUBBO_FILTER_ID = "dubbo_filter";
+    String DUBBO_FILTER_NAME = "dubbo_filter";
+    int DUBBO_FILTER_ORDER = 1;
+
     String FLOW_CTL_FILTER_ID = "flow_ctl_filter";
 
     String FLOW_CTL_FILTER_NAME = "flow_ctl_filter";

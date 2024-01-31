@@ -36,9 +36,7 @@ public class GatewayFilterChainFactory implements FilterFactory<Filter> {
      */
     public GatewayFilterChainFactory() {
         ServiceLoader<Filter> serviceLoader = ServiceLoader.load(Filter.class);
-        Iterator<Filter> iterator = serviceLoader.iterator();
-        while (iterator.hasNext()) {
-            Filter filter = iterator.next();
+        for (Filter filter : serviceLoader) {
             FilterAspect annotation = filter.getClass().getAnnotation(FilterAspect.class);
             if (annotation != null) {
                 String filterId = annotation.id();

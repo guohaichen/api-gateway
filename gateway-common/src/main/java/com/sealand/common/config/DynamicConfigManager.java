@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.sealand.common.constants.BasicConst.COLON_SEPARATOR;
+
 /**
  * 动态服务缓存配置管理类
  */
@@ -120,7 +122,7 @@ public class DynamicConfigManager {
 
             List<String> paths = rule.getPaths();
             for (String path : paths) {
-                String key = rule.getServiceId() + "." + path;
+                String key = rule.getServiceId() + COLON_SEPARATOR + path;
                 newPathMap.put(key, rule);
             }
         }
