@@ -1,14 +1,14 @@
-package com.sealand.backend.dubbo.server.controller;
+package com.sealand.backend.dubbo.server.generic.controller;
 
+import com.sealand.backend.dubbo.server.generic.pojo.GenericBody;
 import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
-import org.apache.dubbo.config.utils.ReferenceConfigCache;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -27,9 +27,8 @@ public class GenericController {
     private String dubboApplicationName;
 
 
-
-    @GetMapping("/generic")
-    public Object handleHttpRequest(@RequestParam String serviceName, @RequestParam String methodName, @RequestParam Object[] parameters) {
+    @PostMapping("/generic")
+    public Object handleHttpRequest(@RequestBody GenericBody genericBody) {
         //api泛型调用
         ApplicationConfig application = new ApplicationConfig();
         application.setName(dubboApplicationName);
@@ -42,15 +41,15 @@ public class GenericController {
         referenceConfig.setApplication(application);
         referenceConfig.setRegistry(registry);
         //泛化调用
-        referenceConfig.setInterface(serviceName);
+        referenceConfig.setInterface(genericBody.getServiceName());
         referenceConfig.setGeneric("true");
 
         //获取服务，由于是泛化调用，所以获取的一定是GenericService类型
         GenericService genericService = referenceConfig.get();
 
         // 基本类型以及Date,List,Map等不需要转换，直接调用
-        return genericService.$invoke(methodName, new String[]{"java.lang.String"},
-                parameters);
+        return genericService.$invoke(genericBody.getMethodName(), new String[]{"java.lang.String"},
+                genericBody.getParameters());
     }
 
 }
