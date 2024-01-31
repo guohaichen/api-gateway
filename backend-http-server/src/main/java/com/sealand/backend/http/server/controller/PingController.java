@@ -4,6 +4,7 @@ import com.sealand.gateway.client.core.annotion.ApiInvoker;
 import com.sealand.gateway.client.core.annotion.ApiService;
 import com.sealand.gateway.client.core.config.ApiProperties;
 import com.sealand.gateway.client.core.config.ApiProtocol;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,6 +35,7 @@ public class PingController {
     }
 
 
+    @Data
     static class Message {
         private String name;
         private String age;
