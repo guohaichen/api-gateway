@@ -18,5 +18,16 @@ public interface ServiceInvoker {
 	int getTimeout();
 	
 	void setTimeout(int timeout);
-	
+
+	String getMethodName();
+
+	void setMethodName(String methodName);
+
+	String[] getParameterTypes();
+
+	void setParameterTypes(String[] parameterTypes);
+
+	String getInterfaceClass();
+
+	void setInterfaceClass(String interfaceClass);
 }

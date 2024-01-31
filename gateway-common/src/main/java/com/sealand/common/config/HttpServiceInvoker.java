@@ -5,4 +5,33 @@ package com.sealand.common.config;
  */
 public class HttpServiceInvoker extends AbstractServiceInvoker {
 
+    @Override
+    public String getMethodName() {
+        return null;
+    }
+
+    @Override
+    public void setMethodName(String methodName) {
+
+    }
+
+    @Override
+    public String[] getParameterTypes() {
+        return new String[0];
+    }
+
+    @Override
+    public void setParameterTypes(String[] parameterTypes) {
+
+    }
+
+    @Override
+    public String getInterfaceClass() {
+        return null;
+    }
+
+    @Override
+    public void setInterfaceClass(String interfaceClass) {
+
+    }
 }

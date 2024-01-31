@@ -3,10 +3,10 @@ package com.sealand.common.config;
 /**
  * 抽象的服务调用接口实现类
  */
-public class AbstractServiceInvoker implements ServiceInvoker {
-	
+public abstract class AbstractServiceInvoker implements ServiceInvoker {
+
 	protected String invokerPath;
-	
+
 	protected int timeout = 5000;
 
 	@Override
@@ -28,5 +28,8 @@ public class AbstractServiceInvoker implements ServiceInvoker {
 	public void setTimeout(int timeout) {
 		this.timeout = timeout;
 	}
+
+
+
 
 }
