@@ -13,17 +13,22 @@
     <artifactId>backend-dubbo-server</artifactId>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <dubbo.version>2.7.4.1</dubbo.version>
         <zookeeper.version>4.0.0</zookeeper.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <lombok.version>1.18.0</lombok.version>
+        <lombok.version>1.18.14</lombok.version>
         <log4j2.version>2.11.1</log4j2.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.sealand.gateway</groupId>
             <artifactId>gateway-client</artifactId>
