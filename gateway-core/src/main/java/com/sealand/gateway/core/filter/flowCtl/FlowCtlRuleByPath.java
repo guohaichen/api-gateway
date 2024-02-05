@@ -1,6 +1,7 @@
 package com.sealand.gateway.core.filter.flowCtl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.sealand.common.config.Rule;
 import com.sealand.gateway.core.filter.flowCtl.core.GuavaCountLimiter;
 import com.sealand.gateway.core.filter.flowCtl.core.RedisCountLimiter;
@@ -8,6 +9,7 @@ import com.sealand.gateway.core.filter.flowCtl.core.RedisCountLimiter;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.sealand.common.constants.BasicConst.COLON_SEPARATOR;
 import static com.sealand.common.constants.FilterConst.*;
 
 /**
@@ -21,7 +23,7 @@ public class FlowCtlRuleByPath implements IGatewayFlowCtlRule {
 
     private String path;
 
-    private RedisCountLimiter redisCountLimiter;
+    private final RedisCountLimiter redisCountLimiter;
 
     public FlowCtlRuleByPath(String serviceId, String path, RedisCountLimiter redisCountLimiter) {
         ServiceId = serviceId;
@@ -35,9 +37,7 @@ public class FlowCtlRuleByPath implements IGatewayFlowCtlRule {
     private static final ConcurrentHashMap<String, FlowCtlRuleByPath> servicePathMap = new ConcurrentHashMap<>();
 
     public static FlowCtlRuleByPath getInstance(String serviceId, String path) {
-        //todo buffer
-        StringBuffer buffer = new StringBuffer();
-        String key = buffer.append(serviceId).append(":").append(path).toString();
+        String key = serviceId + COLON_SEPARATOR + path;
         FlowCtlRuleByPath flowCtlRuleByPath = servicePathMap.get(key);
         if (flowCtlRuleByPath == null) {
             flowCtlRuleByPath = new FlowCtlRuleByPath(serviceId, path, new RedisCountLimiter());
@@ -49,14 +49,13 @@ public class FlowCtlRuleByPath implements IGatewayFlowCtlRule {
     @Override
     public void doFlowCtlFilter(Rule.FlowCtlConfig flowCtlConfig, String serviceId) {
 
-        Map<String, Integer> configMap = JSONObject.parseObject(flowCtlConfig.getConfig(), Map.class);
+        Map<String, Integer> configMap = JSONObject.parseObject(flowCtlConfig.getConfig(), new TypeReference<Map<String, Integer>>(){});
 
         double duration = configMap.get(FLOW_CTL_LIMIT_DURATION);
         double permits = configMap.get(FLOW_CTL_LIMIT_PERMITS);
 
-        boolean flag = true;
-        StringBuffer buffer = new StringBuffer();
-        String key = buffer.append(serviceId).append(":").append(path).toString();
+        boolean flag;
+        String key = serviceId + COLON_SEPARATOR + path;
         //redis 分布式令牌桶限流
         if (FLOW_CTL_MODEL_DISTRIBUTED.equals(flowCtlConfig.getModel())) {
             flag = redisCountLimiter.tryAcquire(key, (int) permits, (int) duration);
