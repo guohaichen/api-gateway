@@ -26,7 +26,7 @@
 
 1. <font color=red>入站处理器 `NettyServerHttpInboundHandler` 中 channelRead 将对消息进行封装为HttpRequestWrapper，交由 `NettyProcessor`.process 处理;</font>
 
-2. `RequestHelper`.doContext 主要是构建网关核心上下文 gatewayContext，随后在`服务注册中心`根据消息的 **uniqueId** 获取对应的服务实例；
+2. `RequestHelper`.buildContext 主要是构建网关核心上下文 gatewayContext，随后在`服务注册中心`根据消息的 **uniqueId** 获取对应的服务实例；
 
 3. `filterFactory`.buildFilterChain 构建过滤器链（这里根据配置中心的配置构建了过滤器链，比如负载均衡，路由过滤器等以及用户自定义的过滤器链，只要加了`FilterAspect`注解的都可以，利用了Java SPI 机制扫描了所有的Filter）； **executeFilter** 中遍历各个 `Filter`，执行 filter 的逻辑；以轮询过滤器举例，从 gatewayContext 中获取服务名，将 gatewayContext 中的请求中的 ip 和 port 替换为服务实例具体的 ip 和 port ；
 4. 最后的过滤器会执行到`RouterFilter`;
@@ -90,7 +90,7 @@ end
 >
 > NettyHttpServer
 
-##### Filter
+#### Filter
 
 > 定义过滤器接口，定义`doFilter`执行过滤器逻辑和`order`执行顺序；
 
@@ -111,7 +111,7 @@ end
 > 该类中就是初始化 netty server 端，pipeLine 添加自定义出站入站处理器 `NettyServerConnectManagerHandler`，入站处理器 `NettyServerHttpInboundHandler`，`HttpServerCodec`编解码器,`HttpObjectAggregator`聚合消息等；
 >
 > - `NettyServerHttpInboundHandler`中会将消息交给 `NettyProcessor`处理；
-> - `RequestHelper`.doContext 构建网关上下文`gatewayContext`；
+> - [RequestHelper](#RequestHelper).buildContext构建网关上下文`gatewayContext`；
 > - 过滤器工厂`FilterFactory`中的过滤器对 `gatewayContext`执行各个过滤器的逻辑，例如负载均衡等；
 > - 最后是`RouterFilter`执行，交给`AsyncHttpHelper`.executeRequest。该方法是 AsyncHttpClient 提供的异步执行请求的方法；
 
@@ -138,10 +138,24 @@ end
 > private ConcurrentHashMap<String/*服务名*/, List<Rule>> serviceRuleMap = new ConcurrentHashMap<>();
 > ```
 
+#### GatewayContext
+
+> 网关核心上下文：**GatewayRequest**，**GatewayResponse** ，**Rule**等；
+
+#### GatewayRequest
+
+> 网关请求，包含请求方式，uri，charset, ip, path, contentType, 请求参数等等；
+
 #### RequestHelper
 
 http://192.168.126.3:8083/http-server/ping	GET	headers:	uniqueId:backend-http-server:1.0.0	Cache-Control:no-cache	Postman-Token:e478e021-cd56-49e9-88c1-eeff6117469f	content-length:0
 
+> **buildContext()->**构建 GatewayContext;
+>
+> **buildRequest()->**构建 GatewayRequest;
+
 #### GatewayFilterChainFactory
 
 > 过滤器工厂，使用 Java`SPI`机制加载过滤器，遍历该过滤器，讲过滤器的 **id** 作为key，该过滤器为value，存放在map中。后续会根据 **配置**中的过滤器 id，从 map 中获取过滤器，添加至 `GatewayFilterChain`，构建成过滤器链；
+
+#### 
