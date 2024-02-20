@@ -1,11 +1,9 @@
 package com.sealand.gateway.core.helper;
 
-import com.jayway.jsonpath.JsonPath;
 import com.sealand.common.config.*;
 import com.sealand.common.constants.BasicConst;
 import com.sealand.common.constants.GatewayConst;
 import com.sealand.common.exception.ResponseException;
-import com.sealand.common.utils.JSONUtil;
 import com.sealand.gateway.core.context.GatewayContext;
 import com.sealand.gateway.core.request.GatewayRequest;
 import io.netty.buffer.ByteBuf;
@@ -19,7 +17,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static com.sealand.common.constants.BasicConst.COLON_SEPARATOR;
 import static com.sealand.common.enums.ResponseCode.PATH_NO_MATCHED;
@@ -30,10 +27,10 @@ import static com.sealand.common.enums.ResponseCode.PATH_NO_MATCHED;
 @Slf4j
 public class RequestHelper {
 
-    public static GatewayContext doContext(FullHttpRequest request, ChannelHandlerContext ctx) {
+    public static GatewayContext buildContext(FullHttpRequest request, ChannelHandlerContext ctx) {
 
         //	构建请求对象GatewayRequest
-        GatewayRequest gateWayRequest = doRequest(request, ctx);
+        GatewayRequest gateWayRequest = buildRequest(request, ctx);
 
         //	根据请求对象里的uniqueId，获取资源服务信息(也就是服务定义信息)
         ServiceDefinition serviceDefinition = DynamicConfigManager.getInstance().getServiceDefinition(gateWayRequest.getUniqueId());
@@ -72,7 +69,7 @@ public class RequestHelper {
     /**
      * 构建Request请求对象
      */
-    private static GatewayRequest doRequest(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) {
+    private static GatewayRequest buildRequest(FullHttpRequest fullHttpRequest, ChannelHandlerContext ctx) {
 
         HttpHeaders headers = fullHttpRequest.headers();
         //	从header头获取必须要传入的关键属性 uniqueId
