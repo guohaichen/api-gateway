@@ -7,10 +7,7 @@ import com.sealand.gateway.client.core.config.ApiProtocol;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @Slf4j
@@ -30,10 +27,31 @@ public class PingController {
     @ApiInvoker(path = "/http-server/post")
     @PostMapping("/http-server/post")
     public String postTest(@RequestBody Message message) {
-        String result = message.name + ":" + message.age;
-        return result;
+        return message.name + ":" + message.age;
     }
 
+
+    /**
+     * ------------------请求方式与参数 测试 start----------------------
+     **/
+    //http请求： http://ip:port/http-server/param/name=""&age=“”
+    @GetMapping("/http-server/param")
+    @ApiInvoker(path = "/http-server/param")
+    public String test1(Message msg) {
+        return msg.name + ":" + msg.age;
+    }
+
+    //http请求： http://ip:port/http-server/pathVariable/{3}/{male}
+    @GetMapping("/http-server/pathVariable/{id}/{gender}")
+    @ApiInvoker(path = "/http-server/pathVariable")
+    public String test2(@PathVariable("id") String id, @PathVariable("gender") String gender) {
+        return id + "," + gender;
+    }
+
+
+    /**
+     * ------------------请求方式与参数 测试 end----------------------
+     **/
 
     @Data
     static class Message {
