@@ -29,7 +29,7 @@
 2. `RequestHelper`.buildContext 主要是构建网关核心上下文 gatewayContext，随后在`服务注册中心`根据消息的 **uniqueId** 获取对应的服务实例；
 
 3. `filterFactory`.buildFilterChain 构建过滤器链（这里根据配置中心的配置构建了过滤器链，比如负载均衡，路由过滤器等以及用户自定义的过滤器链，只要加了`FilterAspect`注解的都可以，利用了Java SPI 机制扫描了所有的Filter）； **executeFilter** 中遍历各个 `Filter`，执行 filter 的逻辑；以轮询过滤器举例，从 gatewayContext 中获取服务名，将 gatewayContext 中的请求中的 ip 和 port 替换为服务实例具体的 ip 和 port ；
-4. 最后的过滤器会执行到`RouterFilter`;
+4. 最后的过滤器会执行到`RouterFilter`; RouterFilter 中最后都会使用 `ResponseHelper`.writeResponse 向 netty server 中写回响应 **writeAndFlush**；
 
 #### HttpServerCodec
 
