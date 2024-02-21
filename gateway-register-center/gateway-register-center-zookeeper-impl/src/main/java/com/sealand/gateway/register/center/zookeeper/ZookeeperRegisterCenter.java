@@ -66,6 +66,7 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
             }
         } catch (Exception e) {
             log.error("zookeeper 创建节点失败,错误信息:{}", e.getMessage());
+            curatorClient.close();
             throw new RuntimeException("zookeeper 创建节点失败!");
         }
     }
@@ -74,11 +75,14 @@ public class ZookeeperRegisterCenter implements RegisterCenter {
     public void deregister(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         //删除节点,guaranteed保证即使出现网络故障，也可以删除节点 todo 停止项目时，发现没有执行删除，联合Bootstrap中 Runtime.getRuntime().addShutdownHook排查一下
         try {
+            ///           dev/api-gateway/service/backend-dubbo-server/192.168.126.3:20886
             String node = REGISTER_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + serviceDefinition.getServiceId() + BasicConst.PATH_SEPARATOR +
                     serviceInstance.getIp() + BasicConst.COLON_SEPARATOR + serviceInstance.getPort();
-            curatorClient.delete().forPath(node);
+            System.out.println(node);
+            curatorClient.delete().guaranteed().forPath(node);
         } catch (Exception e) {
             log.error("zookeeper 删除节点失败，错误信息:{}", e.getMessage());
+            curatorClient.close();
             throw new RuntimeException(e);
         }
     }

@@ -48,6 +48,22 @@ public class ZookeeperTest {
         }
     }
 
+    //删除节点
+    @Test
+    public void deleteNode(){
+        String node = "/api-gateway/service/backend-dubbo-server/192.168.126.3:20887";
+        ZookeeperRegisterCenter zookeeper = new ZookeeperRegisterCenter();
+        zookeeper.init("127.0.0.1:2181", "dev");
+        CuratorFramework curatorClient = zookeeper.getCuratorClient();
+        try {
+            curatorClient.delete().guaranteed().forPath(node);
+        } catch (Exception e) {
+            System.out.println("删除失败");
+            throw new RuntimeException(e);
+        }
+    }
+
+
     /*
      * //监听节点及子节点变化
      */
