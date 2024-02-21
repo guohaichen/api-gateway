@@ -6,7 +6,6 @@ import com.sealand.common.constants.GatewayConst;
 import com.sealand.common.exception.ResponseException;
 import com.sealand.gateway.core.context.GatewayContext;
 import com.sealand.gateway.core.request.GatewayRequest;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import lombok.extern.slf4j.Slf4j;
@@ -81,14 +80,14 @@ public class RequestHelper {
         String clientIp = getClientIp(ctx, fullHttpRequest);
         String contentType = HttpUtil.getMimeType(fullHttpRequest) == null ? null : HttpUtil.getMimeType(fullHttpRequest).toString();
         Charset charset = HttpUtil.getCharset(fullHttpRequest, StandardCharsets.UTF_8);
-        /*---------------------post请求 添加body------start-------*/
-        String body = null;
-        if (HttpMethod.POST.equals(fullHttpRequest.method())) {
-            if (fullHttpRequest.content().isReadable()) {
-                ByteBuf content = fullHttpRequest.content();
-                body = content.toString(StandardCharsets.UTF_8);
-            }
-        }
+        /*---------------------post请求 添加body------start-----已更新为在Router.builder中 gatewayRequest中构建--*/
+//        String body = null;
+//        if (HttpMethod.POST.equals(fullHttpRequest.method())) {
+//            if (fullHttpRequest.content().isReadable()) {
+//                ByteBuf content = fullHttpRequest.content();
+//                body = content.toString(StandardCharsets.UTF_8);
+//            }
+//        }
         GatewayRequest gatewayRequest = new GatewayRequest(uniqueId,
                 charset,
                 clientIp,
@@ -99,9 +98,9 @@ public class RequestHelper {
                 headers,
                 fullHttpRequest);
         /*---------------------post请求 添加body------- end------*/
-        if (body != null) {
-            gatewayRequest.setBody(body);
-        }
+//        if (body != null) {
+//            gatewayRequest.setBody(body);
+//        }
         return gatewayRequest;
     }
 

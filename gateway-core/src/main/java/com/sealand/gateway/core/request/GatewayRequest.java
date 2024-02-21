@@ -96,7 +96,6 @@ public class GatewayRequest implements IGatewayRequest {
     /**
      * 请求体
      */
-    @Getter
     private String body;
 
     /**
@@ -301,7 +300,7 @@ public class GatewayRequest implements IGatewayRequest {
     public Request build() {
         requestBuilder.setUrl(getFinalUrl());
         if (isJsonPost()) {
-            requestBuilder.setBody(body);
+            requestBuilder.setBody(getBody());
         }
         return requestBuilder.build();
     }
