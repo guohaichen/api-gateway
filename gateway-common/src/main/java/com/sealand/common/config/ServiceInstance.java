@@ -73,7 +73,7 @@ public class ServiceInstance implements Serializable {
 	}
 
 	public String getAddress() {
-		return uniqueId;
+		return ip;
 	}
 
 	public String getTags() {

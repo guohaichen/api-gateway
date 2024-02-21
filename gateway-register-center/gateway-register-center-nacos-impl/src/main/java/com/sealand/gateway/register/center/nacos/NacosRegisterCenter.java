@@ -110,8 +110,8 @@ import java.util.stream.Collectors;
     @Override
     public void deregister(ServiceDefinition serviceDefinition, ServiceInstance serviceInstance) {
         try {
-            //nacos 注销实例sdk(删除实例)
-            namingService.deregisterInstance(serviceDefinition.getServiceId(), serviceInstance.getAddress(), serviceInstance.getPort());
+            //nacos 注销实例sdk(删除实例), update:四个参数必须齐全，才能删除实例，否则删除不了；
+            namingService.deregisterInstance(serviceDefinition.getServiceId(), serviceDefinition.getEnvType(),serviceInstance.getAddress(), serviceInstance.getPort());
         } catch (NacosException e) {
             throw new RuntimeException(e);
         }
@@ -132,7 +132,7 @@ import java.util.stream.Collectors;
         try {
             //已订阅的服务
             Set<String> subscribeService = namingService.getSubscribeServices().stream().map(ServiceInfo::getName).collect(Collectors.toSet());
-            log.info("nacos已订阅的服务:{}", Arrays.toString(subscribeService.toArray()));
+//            log.info("nacos已订阅的服务:{}", Arrays.toString(subscribeService.toArray()));
             int pageNo = 1;
             int pageSize = 100;
 
