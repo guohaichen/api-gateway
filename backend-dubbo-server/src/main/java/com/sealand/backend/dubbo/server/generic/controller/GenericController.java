@@ -1,9 +1,13 @@
 package com.sealand.backend.dubbo.server.generic.controller;
 
-import com.sealand.backend.dubbo.server.generic.pojo.GenericBody;
+import com.alibaba.fastjson.JSON;
+import com.sealand.gateway.client.support.dubbo.pojo.GenericBody;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.dubbo.common.utils.PojoUtils;
 import org.apache.dubbo.config.ApplicationConfig;
 import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
+import org.apache.dubbo.config.utils.ReferenceConfigCache;
 import org.apache.dubbo.rpc.service.GenericService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RequestMapping("/dubbo")
 @RestController
+@Slf4j
 public class GenericController {
 
     @Value("${dubbo.registry.address}")
@@ -26,7 +31,7 @@ public class GenericController {
     @Value("${dubbo.application.name}")
     private String dubboApplicationName;
 
-
+    //todo 泛化调用目前没有通用性解决，
     @PostMapping("/generic")
     public Object handleHttpRequest(@RequestBody GenericBody genericBody) {
         //api泛型调用
@@ -44,12 +49,21 @@ public class GenericController {
         referenceConfig.setInterface(genericBody.getServiceName());
         referenceConfig.setGeneric("true");
 
-        //获取服务，由于是泛化调用，所以获取的一定是GenericService类型
-        GenericService genericService = referenceConfig.get();
+        /* ReferenceConfig实例很重，封装了与注册中心的连接以及与提供者的连接，
+        需要缓存，否则重复生成ReferenceConfig可能造成性能问题并且会有内存和连接泄漏。 */
+        ReferenceConfigCache referenceConfigCache = ReferenceConfigCache.getCache();
+        GenericService genericService = referenceConfigCache.get(referenceConfig);
 
-        // 基本类型以及Date,List,Map等不需要转换，直接调用
-        return genericService.$invoke(genericBody.getMethodName(), new String[]{"java.lang.String"},
-                genericBody.getParameters());
+        Object requestBody = genericBody.getRequestBody();
+        log.info("boyd json paramMap ===> kv:{}", JSON.toJSONString(requestBody));
+        Object generalize = PojoUtils.generalize(requestBody);
+
+
+        String methodName = genericBody.getMethodName();
+        String[] parameters = genericBody.getParameters();
+
+        return genericService.$invoke(methodName,
+                parameters, new Object[]{generalize});
     }
 
 }
