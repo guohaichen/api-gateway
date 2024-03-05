@@ -1,14 +1,16 @@
+// 配置参考
 {
   "rules": [
     {
-      "id": "http_1.0.0",
-      "name": "http_1.0.0",
+      "id": "001",
+      "name": "1号规则",
       "protocol": "http",
       "serviceId": "backend-http-server",
-      "prefix": "/user",
+      "prefix": "/http-server",
       "paths": [
         "/http-server/ping",
-        "/http-server/test"
+        "/http-server/test",
+        "/http-server/post"
       ],
       "filterConfigs": [
         {
@@ -34,16 +36,20 @@
       ]
     },
     {
-      "id": "dubbo_1.0.0",
-      "name": "dubbo_1.0.0",
+      "id": "dubbo.100",
+      "name": "dubbo规则",
       "protocol": "dubbo",
       "serviceId": "backend-dubbo-server",
       "prefix": "/dubbo",
       "paths": [
         "/dubbo-server/ping",
-        "/dubbo-server/list"
+        "/dubbo-server/list",
+        "/dubbo-server/user"
       ],
       "filterConfigs": [
+        {
+          "id": "dubbo_filter"
+        },
         {
           "id": "load_balance_filter",
           "config": {
