@@ -1,10 +1,15 @@
 package com.sealand.common.config;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author cgh
  * @create 2024-01-22
  * @desc dubbo
  */
+@Setter
+@Getter
 public class DubboServiceInvoker extends AbstractServiceInvoker {
 
     //	注册中心地址
@@ -16,50 +21,13 @@ public class DubboServiceInvoker extends AbstractServiceInvoker {
     //	方法名称
     private String methodName;
 
-    //	参数名字的集合
+    //	参数类型的集合
     private String[] parameterTypes;
+
+    //参数名称
+    private String[] parametersName;
 
     //	dubbo服务的版本号
     private String version;
-
-    public String getRegisterAddress() {
-        return registerAddress;
-    }
-
-    public void setRegisterAddress(String registerAddress) {
-        this.registerAddress = registerAddress;
-    }
-
-    public String getInterfaceClass() {
-        return interfaceClass;
-    }
-
-    public void setInterfaceClass(String interfaceClass) {
-        this.interfaceClass = interfaceClass;
-    }
-
-    public String getMethodName() {
-        return methodName;
-    }
-
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
-    public String[] getParameterTypes() {
-        return parameterTypes;
-    }
-
-    public void setParameterTypes(String[] parameterTypes) {
-        this.parameterTypes = parameterTypes;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
 
 }

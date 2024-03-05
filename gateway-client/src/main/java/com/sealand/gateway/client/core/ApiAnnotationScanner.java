@@ -1,9 +1,6 @@
 package com.sealand.gateway.client.core;
 
-import com.sealand.common.config.DubboServiceInvoker;
-import com.sealand.common.config.HttpServiceInvoker;
-import com.sealand.common.config.ServiceDefinition;
-import com.sealand.common.config.ServiceInvoker;
+import com.sealand.common.config.*;
 import com.sealand.common.constants.BasicConst;
 import com.sealand.gateway.client.core.annotion.ApiInvoker;
 import com.sealand.gateway.client.core.annotion.ApiService;
@@ -13,6 +10,7 @@ import org.apache.dubbo.config.ProviderConfig;
 import org.apache.dubbo.config.spring.ServiceBean;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -127,11 +125,18 @@ public class ApiAnnotationScanner {
         String methodName = method.getName();
         String registerAddress = serviceBean.getRegistry().getAddress();
         String interfaceClass = serviceBean.getInterface();
+        //方法参数名称
+        Parameter[] parameters = method.getParameters();
+        String[] parametersName = new String[parameters.length];
+        for (int i = 0; i < parameters.length; i++) {
+            parametersName[i] = parameters[i].getName();
+        }
 
         dubboServiceInvoker.setRegisterAddress(registerAddress);
-        //dubbo泛化调用重点：方法名，类全路径名，方法参数类型；
+        //dubbo泛化调用重点：方法名，类全路径名，方法参数类型； 这里新增了 参数名称，使用json 发送请求，泛化调用解析该请求，获得正确的参数
         dubboServiceInvoker.setMethodName(methodName);
         dubboServiceInvoker.setInterfaceClass(interfaceClass);
+        dubboServiceInvoker.setParametersName(parametersName);
 
         String[] parameterTypes = new String[method.getParameterCount()];
         Class<?>[] classes = method.getParameterTypes();

@@ -34,4 +34,15 @@ public class HttpServiceInvoker extends AbstractServiceInvoker {
     public void setInterfaceClass(String interfaceClass) {
 
     }
+
+    @Override
+    public void setParametersName(String[] parametersName) {
+
+    }
+
+    @Override
+    public String[] getParametersName() {
+
+        return new String[0];
+    }
 }

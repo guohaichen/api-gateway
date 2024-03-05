@@ -30,4 +30,9 @@ public interface ServiceInvoker {
 	String getInterfaceClass();
 
 	void setInterfaceClass(String interfaceClass);
+
+	void setParametersName(String[] parametersName);
+
+	String[] getParametersName();
+
 }
