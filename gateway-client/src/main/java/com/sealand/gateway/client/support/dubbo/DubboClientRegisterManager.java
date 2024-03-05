@@ -11,6 +11,8 @@ import com.sealand.gateway.client.support.AbstractClientRegisterManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.dubbo.config.spring.ServiceBean;
 import org.apache.dubbo.config.spring.context.event.ServiceBeanExportedEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -28,6 +30,8 @@ import static com.sealand.common.constants.GatewayConst.DEFAULT_WEIGHT;
  */
 @Slf4j
 public class DubboClientRegisterManager extends AbstractClientRegisterManager implements ApplicationListener<ApplicationEvent> {
+    @Autowired
+    ServerProperties serverProperties;
 
     private Set<Object> set = new HashSet<>();
 
@@ -62,7 +66,8 @@ public class DubboClientRegisterManager extends AbstractClientRegisterManager im
         //服务实例
         ServiceInstance serviceInstance = new ServiceInstance();
         String localIp = NetUtils.getLocalIp();
-        int port = serviceBean.getProtocol().getPort();
+
+        int port = serverProperties.getPort();
         String serviceInstanceId = localIp + COLON_SEPARATOR + port;
         String uniqueId = serviceDefinition.getUniqueId();
         String version = serviceDefinition.getVersion();
