@@ -16,8 +16,6 @@ import java.util.concurrent.Executor;
 @Slf4j
 public class NacosConfigCenter implements ConfigCenter {
 
-    private static final String DATA_ID = "api-gateway";
-
     private String serverAddress;
 
     private String env;
@@ -49,13 +47,13 @@ public class NacosConfigCenter implements ConfigCenter {
     public void subscribeRulesChange(RulesChangeListener rulesChangeListener) {
         try {
             //初始化通知
-            String config = configService.getConfig(DATA_ID, env, 5000);
+            String config = configService.getConfig(CONFIG_FILE_NAME, env, 5000);
             log.info("config from nacos: {}", config);
             List<Rule> rules = JSON.parseObject(config).getJSONArray("rules").toJavaList(Rule.class);
             rulesChangeListener.onRulesChange(rules);
 
             //监听变化
-            configService.addListener(DATA_ID, env, new Listener() {
+            configService.addListener(CONFIG_FILE_NAME, env, new Listener() {
                 @Override
                 public Executor getExecutor() {
                     return null;

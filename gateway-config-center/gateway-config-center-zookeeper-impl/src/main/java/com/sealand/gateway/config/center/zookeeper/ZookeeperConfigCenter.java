@@ -24,9 +24,8 @@ import static com.sealand.gateway.config.center.zookeeper.ZookeeperConfigConstan
 @Slf4j
 public class ZookeeperConfigCenter implements ConfigCenter {
 
-    private static final String DATA_ID = "api-gateway";
 
-    private static final String CONFIG_ID = Config_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + DATA_ID;
+    private static final String CONFIG_ID = Config_CENTER_ZOOKEEPER_PREFIX + BasicConst.PATH_SEPARATOR + CONFIG_FILE_NAME;
 
     private String serverAddress;
 
