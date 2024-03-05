@@ -9,8 +9,8 @@ dubbo:
 
 api:
   env: dev
-  register-address: 127.0.0.1:2181
-  registerType: zookeeper
+  register-address: 127.0.0.1:8848
+  registerType: nacos
   type: dubbo
 spring:
   main:

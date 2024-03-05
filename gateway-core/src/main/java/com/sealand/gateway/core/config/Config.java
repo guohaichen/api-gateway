@@ -10,7 +10,7 @@ public class Config {
 
     private String registryHost = "127.0.0.1";
 
-    private String registryPort = "2181";
+    private String registryPort = "8848";
 
 
     private String registryAddress ;
@@ -22,7 +22,7 @@ public class Config {
     private String env = "dev";
 
     //注册/配置中心实现动态配置;
-    private String registerAndConfigCenter = "zookeeper";
+    private String registerAndConfigCenter = "nacos";
 
     //netty
     private int eventLoopGroupBossNum = 1;

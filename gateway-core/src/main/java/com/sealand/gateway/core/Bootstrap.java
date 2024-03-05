@@ -40,7 +40,14 @@ public class Bootstrap {
         //连接注册中心，将注册中心的实例加载到本地
         final RegisterCenter registerCenter = registerAndSubscribe(config);
 
-        //服务优雅关机,收到kill信号时
+        /*
+        以下程序退出触发 hook 钩子函数
+        所有的线程已经执行完毕（√）
+        调用System.exit()（√）
+        用户输入Ctrl+C（√）
+        遇到问题异常退出（√）
+        kill -9 杀掉进程（×）不行，idea stop 停止同样也不行
+         */
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             registerCenter.deregister(buildGatewayServiceDefinition(config), buildGatewayServiceInstance(config));
             container.shutdown();
