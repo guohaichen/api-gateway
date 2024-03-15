@@ -14,6 +14,8 @@ import com.sealand.gateway.core.response.GatewayResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -34,6 +36,7 @@ import static com.sealand.common.constants.FilterConst.*;
 public class RouterFilter implements Filter {
     @Override
     public void doFilter(GatewayContext gatewayContext) throws Exception {
+        log.info("router filter");
         Request request = gatewayContext.getRequest().build();
         CompletableFuture<Response> future = AsyncHttpHelper.getInstance().executeRequest(request);
 

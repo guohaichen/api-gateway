@@ -158,4 +158,16 @@ http://192.168.126.3:8083/http-server/ping	GET	headers:	uniqueId:backend-http-se
 
 > 过滤器工厂，使用 Java`SPI`机制加载过滤器，遍历该过滤器，讲过滤器的 **id** 作为key，该过滤器为value，存放在map中。后续会根据 **配置**中的过滤器 id，从 map 中获取过滤器，添加至 `GatewayFilterChain`，构建成过滤器链；
 
-#### 
+### 项目监控
+
+#### SkyWalking
+
+1. 安装skyWalking并启动
+2. 启动时增加`jvm`参数 
+
+```cmd
+-javaagent:{skywalking agent 安装路径}\skywalking-agent.jar
+-DSW_AGENT_NAME=boot84
+-DSW_AGENT_COLLECTOR_BACKEND_SERVICES=127.0.0.1:11800
+```
+

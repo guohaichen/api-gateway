@@ -2,6 +2,7 @@ package com.sealand.gateway.core.filter;
 
 import com.sealand.gateway.core.context.GatewayContext;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class GatewayFilterChain {
         filters.addAll(filterList);
     }
 
+    @Trace
     public void executeFilter(GatewayContext gatewayContext) {
         if (filters.isEmpty()) {
             return;
@@ -33,6 +35,9 @@ public class GatewayFilterChain {
         try {
             for (Filter filter : filters) {
                 filter.doFilter(gatewayContext);
+                if (gatewayContext.isTerminated()) {
+                    break;
+                }
             }
         } catch (Exception e) {
             log.info("doFilter failed, error : {}", e.getMessage());
