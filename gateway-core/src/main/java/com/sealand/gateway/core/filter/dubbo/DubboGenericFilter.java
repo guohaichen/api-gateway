@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 
 import static com.sealand.common.constants.FilterConst.*;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 
 /**
  * @author cgh
@@ -36,6 +37,8 @@ public class DubboGenericFilter implements Filter {
             ServiceDefinition serviceDefinition = DynamicConfigManager.getInstance().getServiceDefinition(gatewayContext.getUniqueId());
             String json = getJson(gatewayContext, serviceDefinition);
             gatewayContext.getRequest().setBody(json);
+            gatewayContext.getRequest().getHeaders().set(CONTENT_LENGTH, json.length());
+            //todo 因为泛化调用，在请求体中加了一些泛化调用的必要参数，使得content-length改变，这里应该在build时更新，暂时在这里修改。
             log.info("request body：{}", json);
 
             // 之前写死，现在改为从负载均衡加载，泛化调用接口写死
