@@ -128,6 +128,7 @@ public class GatewayRequest implements IGatewayRequest {
 
     /**
      * 构造器
+     *
      * @param uniqueId
      * @param charset
      * @param clientIp
@@ -279,11 +280,6 @@ public class GatewayRequest implements IGatewayRequest {
         if (isFormPost()) {
             requestBuilder.addFormParam(name, value);
         }
-    }
-
-    @Override
-    public void addOrReplaceCookie(org.asynchttpclient.cookie.Cookie cookie) {
-        requestBuilder.addOrReplaceCookie(cookie);
     }
 
     @Override
