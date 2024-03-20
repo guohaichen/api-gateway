@@ -7,7 +7,8 @@
         <!-- 	配置日志文件输出目录,此处为项目根目录下的logs文件夹 -->
         <Property name="LOG_HOME">logs</Property>
         <!--https://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout -->
-        <property name="patternLayout">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%traceId] [%20.20t] %40.40c{1.} : %m%n</property>
+        <property name="patternLayout">%d{yyyy-MM-dd HH:mm:ss.SSS} %5p [%traceId] [%20.20t] %40.40c{1.} : %m%n
+        </property>
         <property name="accessPatternLayout">%d{yyyy-MM-dd HH:mm:ss.SSS} %m %n</property>
     </Properties>
 
@@ -16,7 +17,13 @@
             <PatternLayout pattern="${patternLayout}"/>
         </Console>
 
-        <RollingRandomAccessFile name="RandomAccessFile" fileName="${LOG_HOME}/gateway-core.log" filePattern="${LOG_HOME}/gateway-core-%d{yyyy-MM-dd}-%i.log">
+        <GRPCLogClientAppender name="SkyWalkingLog">
+            <PatternLayout pattern="${patternLayout}"/>
+        </GRPCLogClientAppender>
+
+
+        <RollingRandomAccessFile name="RandomAccessFile" fileName="${LOG_HOME}/gateway-core.log"
+                                 filePattern="${LOG_HOME}/gateway-core-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="${patternLayout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
@@ -24,7 +31,8 @@
             </Policies>
             <DefaultRolloverStrategy max="20"/>
         </RollingRandomAccessFile>
-        <RollingRandomAccessFile name="AccessLogFile" fileName="${LOG_HOME}/access.log" filePattern="${LOG_HOME}/access-%d{yyyy-MM-dd}-%i.log">
+        <RollingRandomAccessFile name="AccessLogFile" fileName="${LOG_HOME}/access.log"
+                                 filePattern="${LOG_HOME}/access-%d{yyyy-MM-dd}-%i.log">
             <PatternLayout pattern="${accessPatternLayout}"/>
             <Policies>
                 <TimeBasedTriggeringPolicy interval="1"/>
@@ -38,6 +46,7 @@
             <Appender-Ref ref="CONSOLE"/>
             <Appender-Ref ref="RandomAccessFile"/>
             <Appender-Ref ref="AccessLogFile"/>
+            <Appender-Ref ref="SkyWalkingLog"/>
         </Async>
     </Appenders>
 
@@ -53,11 +62,15 @@
         <Logger name="accessLog" level="info" includeLocation="false">
             <AppenderRef ref="AccessLogFile"/>
         </Logger>
+        <Logger name="skyWalkingLog" level="info">
+            <AppenderRef ref="SkyWalkingLog"/>
+        </Logger>
 
         <Root level="info">
             <Appender-Ref ref="CONSOLE"/>
             <Appender-Ref ref="accessLog"/>
             <Appender-Ref ref="RandomAccessFile"/>
+            <Appender-Ref ref="SkyWalkingLog"/>
         </Root>
     </Loggers>
 </Configuration>
