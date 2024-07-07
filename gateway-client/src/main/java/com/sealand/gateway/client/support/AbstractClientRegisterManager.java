@@ -3,6 +3,7 @@ package com.sealand.gateway.client.support;
 import com.sealand.common.config.ServiceDefinition;
 import com.sealand.common.config.ServiceInstance;
 import com.sealand.gateway.client.core.config.ApiProperties;
+import com.sealand.gateway.register.center.etcd.EtcdRegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.nacos.NacosRegisterCenter;
 import com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCenter;
@@ -28,7 +29,7 @@ public abstract class AbstractClientRegisterManager {
 
         String NACOS_REGISTER_CENTER = "nacos";
         String ZOOKEEPER_REGISTER_CENTER = "zookeeper";
-
+        String ETCD_REGISTER_CENTER = "etcd";
         //todo 不灵活，写死了，
         ServiceLoader<RegisterCenter> serviceLoader = ServiceLoader.load(RegisterCenter.class);
         for (RegisterCenter registerCenter : serviceLoader) {
@@ -38,6 +39,9 @@ public abstract class AbstractClientRegisterManager {
                 log.info("nacos register init...");
             } else if (registerCenter instanceof ZookeeperRegisterCenter && ZOOKEEPER_REGISTER_CENTER.equals(apiProperties.getRegisterType())) {
                 log.info("zookeeper register init...");
+                this.registerCenter = registerCenter;
+            }else if (registerCenter instanceof EtcdRegisterCenter && ETCD_REGISTER_CENTER.equals(apiProperties.getRegisterType())){
+                log.info("etcd register init...");
                 this.registerCenter = registerCenter;
             }
         }

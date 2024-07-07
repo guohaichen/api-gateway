@@ -3,6 +3,8 @@ package com.sealand.gateway.core.center;
 import com.sealand.gateway.config.center.api.ConfigCenter;
 import com.sealand.gateway.config.center.nacos.NacosConfigCenter;
 import com.sealand.gateway.config.center.zookeeper.ZookeeperConfigCenter;
+import com.sealand.gateway.etcd.EtcdConfigCenter;
+import com.sealand.gateway.register.center.etcd.EtcdRegisterCenter;
 import com.sealand.gateway.register.center.api.RegisterCenter;
 import com.sealand.gateway.register.center.nacos.NacosRegisterCenter;
 import com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCenter;
@@ -19,8 +21,12 @@ public class ConfigAndRegisterCenterFactory {
     public static final String NACOS_CENTER = "nacos";
     public static final String ZOOKEEPER_CENTER = "zookeeper";
 
+    //新增支持etcd
+    public static final String ETCD_CENTER = "etcd";
+
     /**
      * 根据配置选择注册中心
+     *
      * @param registerType 参数——类型
      * @return 注册中心
      */
@@ -29,14 +35,17 @@ public class ConfigAndRegisterCenterFactory {
             return new NacosRegisterCenter();
         } else if (ZOOKEEPER_CENTER.equals(registerType)) {
             return new ZookeeperRegisterCenter();
+        } else if (ETCD_CENTER.equals(registerType)) {
+            return new EtcdRegisterCenter();
         } else {
-            log.error("配置参数出错，暂时不支持该注册中心:{}配置;",registerType);
+            log.error("配置参数出错，暂时不支持该注册中心:{}配置;", registerType);
             throw new IllegalArgumentException("配置参数出错，暂时不支持该注册中心配置;");
         }
     }
 
     /**
      * 根据配置选择配置中心
+     *
      * @param configType 参数类型
      * @return 配置中心
      */
@@ -45,8 +54,10 @@ public class ConfigAndRegisterCenterFactory {
             return new NacosConfigCenter();
         } else if (ZOOKEEPER_CENTER.equals(configType)) {
             return new ZookeeperConfigCenter();
+        } else if (ETCD_CENTER.equals(configType)) {
+            return new EtcdConfigCenter();
         } else {
-            log.error("配置参数出错，暂时不支持该配置中心:{}配置;",configType);
+            log.error("配置参数出错，暂时不支持该配置中心:{}配置;", configType);
             throw new IllegalArgumentException("配置参数出错，暂时不支持该配置中心;");
         }
     }

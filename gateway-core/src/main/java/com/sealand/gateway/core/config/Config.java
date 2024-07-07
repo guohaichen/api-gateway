@@ -8,9 +8,11 @@ public class Config {
 
     private String applicationName = "api-gateway";
 
-    private String registryHost = "127.0.0.1";
+    private String registryHost = "http://127.0.0.1";
 
-    private String registryPort = "8848";
+    private String registryPort = "2379";
+
+
 
 
     private String registryAddress ;
@@ -22,7 +24,7 @@ public class Config {
     private String env = "dev";
 
     //注册/配置中心实现动态配置;
-    private String registerAndConfigCenter = "nacos";
+    private String registerAndConfigCenter = "etcd";
 
     //netty
     private int eventLoopGroupBossNum = 1;
