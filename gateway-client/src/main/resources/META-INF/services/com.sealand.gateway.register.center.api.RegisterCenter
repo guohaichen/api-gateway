@@ -1,3 +1,4 @@
 #SPI机制适配多注册中心
 com.sealand.gateway.register.center.nacos.NacosRegisterCenter
 com.sealand.gateway.register.center.zookeeper.ZookeeperRegisterCenter
+com.sealand.gateway.register.center.etcd.EtcdRegisterCenter

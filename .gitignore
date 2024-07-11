@@ -17,4 +17,5 @@ log/
 
 #test
 **/src/test/
+!gateway-register-center/**/src/test
 .gitattributes

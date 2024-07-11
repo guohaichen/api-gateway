@@ -15,6 +15,7 @@
         <module>gateway-config-center-api</module>
         <module>gateway-config-center-nacos-impl</module>
         <module>gateway-config-center-zookeeper-impl</module>
+        <module>gateway-config-center-etcd-impl</module>
     </modules>
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

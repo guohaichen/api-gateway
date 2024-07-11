@@ -9,8 +9,8 @@ dubbo:
 
 api:
   env: dev
-  register-address: 127.0.0.1:8848
-  registerType: nacos
+  register-address: http://127.0.0.1:2379
+  registerType: etcd
   type: dubbo
 spring:
   main:
