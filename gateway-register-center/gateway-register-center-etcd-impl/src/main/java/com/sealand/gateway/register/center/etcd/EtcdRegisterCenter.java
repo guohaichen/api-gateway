@@ -9,10 +9,12 @@ import com.sealand.gateway.register.center.api.RegisterCenterListener;
 import io.etcd.jetcd.ByteSequence;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
+import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.options.WatchOption;
+import io.etcd.jetcd.watch.WatchEvent;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -94,67 +96,55 @@ public class EtcdRegisterCenter implements RegisterCenter {
         log.info("{} 服务实例下线...", serviceDefinition.getServiceId() + separator + serviceInstance.getIp() + separator + serviceInstance.getPort());
     }
 
-    //todo 缺少服务实例/定义变化的回调，更新DynamicConfigManager
     @Override
     public void subscribeAllServicesChange(RegisterCenterListener registerCenterListener) {
+        // notice 详细看看这里监听器链表回调的模式
         registerCenterListenerList.add(registerCenterListener);
-
-        doSubscribeChange();
+        doOnChange();
         ScheduledExecutorService scheduledThreadPool = Executors.newScheduledThreadPool(1);
 
-        scheduledThreadPool.scheduleWithFixedDelay(this::doSubscribeChange, 10, 10, TimeUnit.SECONDS);
+        scheduledThreadPool.scheduleWithFixedDelay(this::doOnChange, 10, 10, TimeUnit.SECONDS);
     }
 
-    private void doSubscribeChange() {
-        List<ServiceDefinition> serviceDefinitionList = new ArrayList<>();
+    /*
+    监听服务实例前缀。服务实例是以 /env/api-gateway/service开头；服务定义是以 /env/api-gateway/service-definition开头
+    反序列化成服务实例，getUniqueId,得到服务定义名称，找到服务定义 反序列化成服务定义，触发onchange
+     */
+    private void doOnChange() {
+        String serviceInstancePrefixKey = separator + env + REGISTER_CENTER_PREFIX + separator;
+        ByteSequence instanceKey = ByteSequence.from(serviceInstancePrefixKey.getBytes());
+        WatchOption prefixOption = WatchOption.newBuilder().isPrefix(true).build();
+        client.getWatchClient().watch(instanceKey, prefixOption, Watch.listener(
+                watchResponse -> {
+                    watchResponse.getEvents().forEach(watchEvent -> {
+                        try {
+                            if (WatchEvent.EventType.PUT.equals(watchEvent.getEventType())) {
 
-        //服务定义前缀
-        ByteSequence prefixKey = ByteSequence.from((separator + env + SERVICE_DEFINITION_PREFIX + separator).getBytes());
-        GetOption prefixOption = GetOption.newBuilder().isPrefix(true).build();
-        try {
-            kvClient.get(prefixKey, prefixOption).get().getKvs().forEach(keyValue -> {
-                serviceDefinitionList.add(JSON.parseObject(keyValue.getValue().toString(), ServiceDefinition.class));
-            });
-        } catch (InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
+                                ServiceInstance changeServiceInstance = JSON.parseObject(watchEvent.getKeyValue().getValue().toString(), ServiceInstance.class);
+                                // uniqueId 是由 服务定义名称+版本号组成，这里通过subString去掉版本号，就是服务定义名称；
+                                String serviceDefinitionName = changeServiceInstance.getUniqueId().substring(0,changeServiceInstance.getUniqueId().indexOf(':'));
 
+                                ByteSequence serviceDefinitionKey = ByteSequence.from((separator + env + SERVICE_DEFINITION_PREFIX + separator + serviceDefinitionName).getBytes());
+                                //根据服务定义名称找到服务定义并反序列化为服务定义；
+                                ServiceDefinition serviceDefinition = JSON.parseObject(kvClient.get(serviceDefinitionKey).get().getKvs().get(0).getValue().toString(), ServiceDefinition.class);
 
-        //找到所有的服务定义
-        for (ServiceDefinition sd : serviceDefinitionList) {
-
-            String key = separator + env + REGISTER_CENTER_PREFIX + separator + sd.getServiceId();
-            log.info("key :{} ", key);
-            ByteSequence watchKey = ByteSequence.from(key.getBytes());
-
-            //todo 应该写监听器事件实现，目前硬编码
-            Set<ServiceInstance> serviceInstanceSet = new HashSet<>();
-            try {
-                kvClient.get(watchKey, GetOption.newBuilder().isPrefix(true).build()).get().getKvs().forEach(
-                        keyValue -> {
-                            serviceInstanceSet.add(JSON.parseObject(keyValue.getValue().toString(), ServiceInstance.class));
+                                ByteSequence instancePrefixKey = ByteSequence.from((serviceInstancePrefixKey + serviceDefinitionName).getBytes());
+                                GetOption option = GetOption.newBuilder().isPrefix(true).build();
+                                Set<ServiceInstance> set = new HashSet<>();
+                                kvClient.get(instancePrefixKey, option).get().getKvs().forEach(
+                                        keyValue -> {
+                                            ServiceInstance serviceInstance = JSON.parseObject(keyValue.getValue().toString(), ServiceInstance.class);
+                                            set.add(serviceInstance);
+                                        }
+                                );
+                                log.info("serviceInstance change , instance :{}", changeServiceInstance.getServiceInstanceId());
+                                registerCenterListenerList.forEach(l -> l.onChange(serviceDefinition, set));
+                            }
+                        } catch (InterruptedException | ExecutionException e) {
+                            throw new RuntimeException(e);
                         }
-                );
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-            log.info("register listener onchange 回调...");
-            registerCenterListenerList.forEach(l -> l.onChange(sd, serviceInstanceSet));
-
-//            //实例化一个监听器对象，当指定key，注意 watch机制包含前缀监听  发生变化时被调用
-//            client.getWatchClient().watch(watchKey, Watch.listener(watchResponse -> {
-//                Set<ServiceInstance> instanceSet = new HashSet<>();
-//                watchResponse.getEvents().forEach(
-//                        watchEvent -> {
-//                            if (WatchEvent.EventType.PUT.equals(watchEvent.getEventType())) {
-//                                log.info("--------------watch listener----------");
-//                                instanceSet.add(JSON.parseObject(watchEvent.getKeyValue().getValue().toString(), ServiceInstance.class));
-//                            }
-//                        }
-//                );
-//                log.info("onchange回调...");
-//                registerCenterListenerList.forEach(l -> l.onChange(sd, instanceSet));
-//            }));
-        }
+                    });
+                }
+        ));
     }
 }

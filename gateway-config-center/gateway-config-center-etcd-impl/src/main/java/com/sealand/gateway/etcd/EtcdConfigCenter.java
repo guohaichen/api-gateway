@@ -5,11 +5,9 @@ import com.sealand.common.config.Rule;
 import com.sealand.common.constants.BasicConst;
 import com.sealand.gateway.config.center.api.ConfigCenter;
 import com.sealand.gateway.config.center.api.RulesChangeListener;
-import io.etcd.jetcd.ByteSequence;
-import io.etcd.jetcd.Client;
-import io.etcd.jetcd.KV;
-import io.etcd.jetcd.Watch;
+import io.etcd.jetcd.*;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.watch.WatchEvent;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -111,15 +109,13 @@ public class EtcdConfigCenter implements ConfigCenter {
     }
 
 
-    //todo
+
     @Override
     public void subscribeRulesChange(RulesChangeListener rulesChangeListener) {
         log.info("etcd config init...");
         ByteSequence configKey = ByteSequence.from((BasicConst.PATH_SEPARATOR + env + CONFIG).getBytes());
-        //todo bug 监听器事件
-        try {
 
-            kvClient =  Client.builder().endpoints("http://127.0.0.1:2379").build().getKVClient();
+        try {
             GetResponse getResponse = kvClient.get(configKey).get();
             getResponse.getKvs().forEach(
                     keyValue -> {
@@ -127,17 +123,18 @@ public class EtcdConfigCenter implements ConfigCenter {
                         log.info("获取 etcd 配置，config: {}", keyValue.getValue().toString());
                         rulesChangeListener.onRulesChange(rules);
                         //监听器
-//                        watchClient.watch(configKey, Watch.listener(watchResponse -> {
-//                            watchResponse.getEvents().forEach(
-//                                    watchEvent -> {
-//                                        if (watchEvent.getEventType().equals(WatchEvent.EventType.PUT)) {
-//                                            KeyValue kv = watchEvent.getKeyValue();
-//                                            List<Rule> changeRules = JSON.parseObject(kv.getValue().toString()).getJSONArray("rules").toJavaList(Rule.class);
-//                                            rulesChangeListener.onRulesChange(changeRules);
-//                                        }
-//                                    }
-//                            );
-//                        }));
+                        watchClient.watch(configKey, Watch.listener(watchResponse -> {
+                            watchResponse.getEvents().forEach(
+                                    watchEvent -> {
+                                        if (watchEvent.getEventType().equals(WatchEvent.EventType.PUT)) {
+                                            KeyValue kv = watchEvent.getKeyValue();
+                                            List<Rule> changeRules = JSON.parseObject(kv.getValue().toString()).getJSONArray("rules").toJavaList(Rule.class);
+                                            log.info("配置变化，监听器生效；config:{}",kv.getValue().toString());
+                                            rulesChangeListener.onRulesChange(changeRules);
+                                        }
+                                    }
+                            );
+                        }));
                     }
             );
         } catch (InterruptedException | ExecutionException e) {
