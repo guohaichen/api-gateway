@@ -109,7 +109,7 @@ public class EtcdConfigCenter implements ConfigCenter {
     }
 
 
-    //todo
+
     @Override
     public void subscribeRulesChange(RulesChangeListener rulesChangeListener) {
         log.info("etcd config init...");

@@ -64,15 +64,15 @@ public class EtcdTest {
 
                 GetResponse instanceResp = null;
                 try {
-                    instanceResp = kvClient.get(ByteSequence.from((serviceDefinition + BasicConst.PATH_SEPARATOR).getBytes()),getOption).get();
+                    instanceResp = kvClient.get(ByteSequence.from((serviceDefinition + BasicConst.PATH_SEPARATOR).getBytes()), getOption).get();
                 } catch (InterruptedException | ExecutionException e) {
                     throw new RuntimeException(e);
                 }
                 instanceResp.getKvs().forEach(kv -> {
-                        System.out.println("add instance: " + kv.getValue().toString());
-                        set.add(JSON.parseObject(kv.getValue().toString(), ServiceInstance.class));
-                    });
-                    serviceMap.put(sd, set);
+                    System.out.println("add instance: " + kv.getValue().toString());
+                    set.add(JSON.parseObject(kv.getValue().toString(), ServiceInstance.class));
+                });
+                serviceMap.put(sd, set);
 
             });
         }
@@ -120,14 +120,93 @@ public class EtcdTest {
         GetOption getOption = GetOption.newBuilder().isPrefix(true).build();
 
         for (String serviceDefinition : serviceDefinitions) {
-            ByteSequence sequence = ByteSequence.from((serviceDefinition+BasicConst.PATH_SEPARATOR).getBytes());
-            kvClient.get(sequence,getOption).get().getKvs().forEach(
+            ByteSequence sequence = ByteSequence.from((serviceDefinition + BasicConst.PATH_SEPARATOR).getBytes());
+            kvClient.get(sequence, getOption).get().getKvs().forEach(
                     keyValue -> {
-                        System.out.println("key:\t"+ keyValue.getKey());
-                        System.out.println("value:\t"+ keyValue.getValue());
+                        System.out.println("key:\t" + keyValue.getKey());
+                        System.out.println("value:\t" + keyValue.getValue());
                     }
             );
         }
+    }
+
+
+    @Test
+    public void configWatch() throws ExecutionException, InterruptedException {
+        //测试etcd 配置中心，监听配置变化
+
+        String value = "{\n" +
+                "  \"rules\": [\n" +
+                "    {\n" +
+                "      \"id\": \"002\",\n" +
+                "      \"name\": \"1号规则\",\n" +
+                "      \"protocol\": \"http\",\n" +
+                "      \"serviceId\": \"backend-http-server\",\n" +
+                "      \"prefix\": \"/http-server\",\n" +
+                "      \"paths\": [\n" +
+                "        \"/http-server/ping\",\n" +
+                "        \"/http-server/test\",\n" +
+                "        \"/http-server/post\"\n" +
+                "      ],\n" +
+                "      \"filterConfigs\": [\n" +
+                "        {\n" +
+                "          \"id\": \"load_balance_filter\",\n" +
+                "          \"config\": {\n" +
+                "            \"load_balance\": \"RoundRobin\"\n" +
+                "          }\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"id\": \"flow_ctl_filter\"\n" +
+                "        }\n" +
+                "      ],\n" +
+                "      \"flowCtlConfigs\": [\n" +
+                "        {\n" +
+                "          \"type\": \"path\",\n" +
+                "          \"model\": \"distributed_flowCtl\",\n" +
+                "          \"value\": \"/http-server/ping\",\n" +
+                "          \"config\": {\n" +
+                "            \"duration\": 20,\n" +
+                "            \"permits\": 2\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    },\n" +
+                "    {\n" +
+                "      \"id\": \"dubbo.100\",\n" +
+                "      \"name\": \"dubbo规则\",\n" +
+                "      \"protocol\": \"dubbo\",\n" +
+                "      \"serviceId\": \"backend-dubbo-server\",\n" +
+                "      \"prefix\": \"/dubbo\",\n" +
+                "      \"paths\": [\n" +
+                "        \"/dubbo-server/ping\",\n" +
+                "        \"/dubbo-server/list\",\n" +
+                "        \"/dubbo-server/user\"\n" +
+                "      ],\n" +
+                "      \"filterConfigs\": [\n" +
+                "        {\n" +
+                "          \"id\": \"dubbo_filter\"\n" +
+                "        },\n" +
+                "        {\n" +
+                "          \"id\": \"load_balance_filter\",\n" +
+                "          \"config\": {\n" +
+                "            \"load_balance\": \"RoundRobin\"\n" +
+                "          }\n" +
+                "        }\n" +
+                "      ]\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}";
+        Client client = Client.builder().endpoints("http://localhost:2379").build();
+        KV kvClient = client.getKVClient();
+        ByteSequence key = ByteSequence.from(("/dev/api-gateway/config/api-gateway").getBytes());
+
+        kvClient.put(key, ByteSequence.from(value.getBytes()));
+        kvClient.get(key).get().getKvs().forEach(
+                keyValue -> {
+                    System.out.println(keyValue.getValue().toString());
+                }
+        );
+
     }
 
 }
