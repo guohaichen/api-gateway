@@ -1,2 +1,0 @@
-com.sealand.gateway.config.center.nacos.NacosConfigCenter
-com.sealand.gateway.config.center.zookeeper.ZookeeperConfigCenter
