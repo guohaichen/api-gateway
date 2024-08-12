@@ -15,7 +15,7 @@ import java.util.ServiceLoader;
 /**
  * @author cgh
  * @create 2023-11-13
- * @desc
+ * @desc spi机制实现多注册中心实现，根据客户端的配置，支持nacos，etcd，zookeeper 注册中心
  */
 @Slf4j
 public abstract class AbstractClientRegisterManager {
@@ -30,10 +30,9 @@ public abstract class AbstractClientRegisterManager {
         String NACOS_REGISTER_CENTER = "nacos";
         String ZOOKEEPER_REGISTER_CENTER = "zookeeper";
         String ETCD_REGISTER_CENTER = "etcd";
-        //todo 不灵活，写死了，
+
         ServiceLoader<RegisterCenter> serviceLoader = ServiceLoader.load(RegisterCenter.class);
         for (RegisterCenter registerCenter : serviceLoader) {
-
             if (registerCenter instanceof NacosRegisterCenter && NACOS_REGISTER_CENTER.equals(apiProperties.getRegisterType())) {
                 this.registerCenter = registerCenter;
                 log.info("nacos register init...");
