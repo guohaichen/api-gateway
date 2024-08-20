@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 public class RoundRobinLoadBalanceRule implements IGatewayLoadBalanceRule {
-    //轮询下标
+    //轮询下标，这里值得注意的就是当 AtomicInteger 自增到最大值时，它会回到 min_value;
     private AtomicInteger roundPosition = new AtomicInteger(1);
     private final String serviceId;
 
@@ -52,12 +52,7 @@ public class RoundRobinLoadBalanceRule implements IGatewayLoadBalanceRule {
             throw new NotFoundException(ResponseCode.SERVICE_INSTANCE_NOT_FOUND);
         }
         List<ServiceInstance> instancesList = new ArrayList<>(serviceInstanceSet);
-        if (instancesList.isEmpty()) {
-            log.warn("{} hasn't instance for providing", serviceId);
-            return null;
-        } else {
-            int roundPosition = Math.abs(this.roundPosition.incrementAndGet());
-            return instancesList.get(roundPosition % instancesList.size());
-        }
+        int roundPosition = Math.abs(this.roundPosition.incrementAndGet());
+        return instancesList.get(roundPosition % instancesList.size());
     }
 }

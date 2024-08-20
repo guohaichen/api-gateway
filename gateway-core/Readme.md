@@ -106,7 +106,7 @@ end
 > - OkHttp:OkHttp 是一个高性能的 HTTP 客户端，被广泛使用于 Android 平台以及 Java 环境。清晰的 API，易于使用，并支持同步和异步请求。内置了连接池，可重用连接，减少连接的建立和关闭带来的开销。 OkHttp 提供拦截器机制，允许在请求和响应的处理过程中添加、修改或拦截操作，提高了灵活性。
 > - HttpClient:Apache HttpClient 是 Apache 软件基金会的项目，经过长时间的发展和验证，稳定性较好。 相对于一些轻量级的库，Apache HttpClient 的包大小和性能开销可能较大。
 
-#### NettyHttpSever
+#### NettyHttpServer
 
 > 该类中就是初始化 netty server 端，pipeLine 添加自定义出站入站处理器 `NettyServerConnectManagerHandler`，入站处理器 `NettyServerHttpInboundHandler`，`HttpServerCodec`编解码器,`HttpObjectAggregator`聚合消息等；
 >
@@ -116,6 +116,8 @@ end
 > - 最后是`RouterFilter`执行，交给`AsyncHttpHelper`.executeRequest。该方法是 AsyncHttpClient 提供的异步执行请求的方法；
 
 #### AsyncHttpHelper
+
+> 真正向服务实例发送请求的类，使用`AsyncHttpClient`框架；真正的调用是发生在`RounterFilter`中；
 
 #### DynamicConfigManager
 
@@ -140,7 +142,7 @@ end
 
 #### GatewayContext
 
-> 网关核心上下文：**GatewayRequest**，**GatewayResponse** ，**Rule**等；
+> 网关核心上下文：**GatewayRequest**，**GatewayResponse**，**Rule**等；
 
 #### GatewayRequest
 
