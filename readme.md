@@ -1,6 +1,6 @@
 ### 网关设计
 
-![gateway](./assets/gateway.png)
+![gateway](./assets/gateway.svg)
 
 ### 网关模块介绍
 
